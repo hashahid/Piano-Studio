@@ -26,3 +26,9 @@ h3 {
     margin-top: 10px;
     margin-bottom: 20px;
 }
+
+canvas {
+    padding: 0;
+    margin: auto;
+    display: block;
+}
