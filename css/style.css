@@ -1,23 +1,4 @@
-/*
-    Created on : Oct 18, 2014, 6:53:54 PM
-    Author     : Haseeb Shahid
-*/
-#controls_toolbar {
-    margin-top: 10px;
-    margin-bottom: 20px;
-}
-
-h1 {
-    margin: 0;
-    padding: 0;
-}
-
-h3 {
-    margin: 0;
-    padding: 0;
-}
-
-#volume_toolbar {
+.toolbarRow {
     margin-top: 10px;
     margin-bottom: 20px;
 }
@@ -26,5 +7,10 @@ canvas {
     border: 1px solid black;
     display: block;
     margin: auto;
+    padding: 0;
+}
+
+h1, h3 {
+    margin: 0;
     padding: 0;
 }

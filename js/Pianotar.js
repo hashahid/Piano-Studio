@@ -1,3 +1,13 @@
+// TODO: Connect beats to filters and fix filter code
+// TODO: Make use of promises in BufferLoader.js
+// TODO: JavaScriptify this file, including removing as many global variables as possible
+// TODO: jQuerify this file
+// TODO: Make Pianotar pretty with Material Design and by cleaning up UI
+// TODO: Hide start beat button if respective beat is playing, hide stop beat button if it's not playing
+// TODO: Find better drum beats (at least one to replace Beat 2)
+// TODO: make JSDocs
+// TODO: Make Pianotar into Pianozela
+
 var beat1Source;
 var beat2Source;
 var beatGain;
@@ -6,8 +16,6 @@ var blackKeyWidth;
 var bufferLoader;
 var canvas;
 var canvas2d;
-var canvasHeight;
-var canvasWidth;
 var context;
 var filter;
 var keyIndex = 0;
@@ -22,11 +30,9 @@ var whiteKeysArray = [];
 var whiteKeyWidth;
 
 function init() {
-    canvas = document.getElementById("myCanvas");
+    canvas = document.querySelector("canvas");
     canvas2d = canvas.getContext("2d");
-    canvasWidth = canvas.width;
-    canvasHeight = canvas.height;
-    whiteKeyWidth = canvasWidth / 14;
+    whiteKeyWidth = canvas.width / 14;
     blackKeyWidth = 2 * (whiteKeyWidth / 3);
 
     for (var i = 0; i < numKeys; i++) {
@@ -44,8 +50,7 @@ function init() {
         }
     }
 
-    drawWhiteKeys();
-    drawBlackKeys();
+    drawPiano();
 
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     context = new AudioContext();
@@ -116,32 +121,54 @@ function init() {
                 return;
             }
         }
+    });
+
+    canvas.addEventListener("mouseup", function() {
+        drawPiano();
+    });
+
+    var filter1 = document.getElementById("filter1");
+    var filterType = document.getElementById("filterType");
+    var qValue = document.getElementById("qValue");
+
+    filter.type = filterType.value;
+    filter.gain.value = 40;
+    filter.Q.value = qValue.value;
+    filter.frequency.value = filter1.value;
+
+    // filter frequency
+    filter1.addEventListener("change", function () {
+        filter.frequency.value = filter1.value;
     }, false);
 
-    canvas.addEventListener("mouseup", function (e) {
-        // Clear canvas
-        canvas.width = 2;
-        canvas.width = canvasWidth;
-
-        // Redraw piano
-        drawWhiteKeys();
-        drawBlackKeys();
+    // filter type
+    filterType.addEventListener("change", function () {
+        filter.type = filterType.value;
     }, false);
+
+    // filter quality
+    qValue.addEventListener("change", function () {
+        filter.Q.value = qValue.value;
+    }, false);
+}
+
+function drawPiano() {
+    canvas2d.clearRect(0, 0, canvas.width, canvas.height);
+    drawWhiteKeys();
+    drawBlackKeys();
 }
 
 function drawWhiteKeys() {
     var x = whiteKeyWidth;
-
     for (var i = 0; i < 14; i++) {
         canvas2d.rect(i * x, 0, x, 300);
         canvas2d.stroke();
     }
 }
+
 function drawBlackKeys() {
     var x = blackKeyWidth;
-
     canvas2d.fillStyle = "#000000";
-
     for (var i = 0; i <= 12; i++) {
         if (i === 2 || i === 6 || i === 9)
             continue;
@@ -155,16 +182,14 @@ function finishedLoading(bufferList) {
 
 function outputKey(index) {
     // Connect buffers to filter node
-    for (var i = 0; i < 24; i++) {
+    for (var i = 0; i < numKeys; i++) {
         keysSource[i] = context.createBufferSource();
-        keysSource[i].buffer = saveBufferList[i % 24];
-        keysSource[i].connect(pianoGain);
-        //source[i].connect(filter);
+        keysSource[i].buffer = saveBufferList[i % numKeys];
+        keysSource[i].connect(filter);
     }
-    
-    checkFilter();
 
     // Set up volume adjustment for piano keys
+    filter.connect(pianoGain);
     pianoGain.connect(context.destination);
     var pianoVolumeSlider = document.getElementById("slider1");
     var fraction = parseInt(pianoVolumeSlider.value) / parseInt(pianoVolumeSlider.max);
@@ -174,65 +199,10 @@ function outputKey(index) {
     keysSource[index].start(0);
 }
 
-function checkFilter() {
-    var element = document.getElementById("filter_choice");
-    if (element.options[element.selectedIndex].value === 0) {
-        for (var i = 0; i < 24; i++) {
-            keysSource[i].disconnect(0);
-            filter.disconnect(0);
-            keysSource[i].connect(pianoGain);
-        }
-    }
-    if (element.options[element.selectedIndex].value === 1) {
-        filter = context.createBiquadFilter();
-        for (var i = 0; i < 24; i++) {
-            keysSource[i].disconnect(0);
-            keysSource[i].connect(filter);
-            filter.connect(pianoGain);
-        }
-    }
-    if (element.options[element.selectedIndex].value === 2) {
-        filter = context.createBiquadFilter();
-        filter.type = "highpass";
-        filter.frequency = 200;
-        filter.Q = 2;
-        for (var i = 0; i < 24; i++) {
-            keysSource[i].disconnect(0);
-            keysSource[i].connect(filter);
-            filter.connect(pianoGain);
-        }
-    }
-    if (element.options[element.selectedIndex].value === 3) {
-        filter = context.createBiquadFilter();
-        filter.type = "bandpass";
-        filter.type = 150;
-        filter.Q = 2;
-        for (var i = 0; i < 24; i++) {
-            keysSource[i].disconnect(0);
-            keysSource[i].connect(filter);
-            filter.connect(pianoGain);
-        }
-    }
-    if (element.options[element.selectedIndex].value === 4) {
-        filter = context.createBiquadFilter();
-        filter.type = "peaking";
-        filter.frequency = 150;
-        filter.Q = 2;
-        filter.gain = -10;
-        for (var i = 0; i < 24; i++) {
-            keysSource[i].disconnect(0);
-            keysSource[i].connect(filter);
-            filter.connect(pianoGain);
-        }
-    }
-}
-
 function playBeat1() {
     beat1Source = context.createBufferSource();
     beat1Source.buffer = saveBufferList[24];
     beat1Source.connect(beatGain);
-    //beat1Source.connect(filter);
-    //filter.connect(beatGain);
     beatGain.connect(context.destination);
     var beatVolumeSlider = document.getElementById("slider2");
     var fraction = parseInt(beatVolumeSlider.value) / parseInt(beatVolumeSlider.max);
@@ -245,8 +215,6 @@ function playBeat2() {
     beat2Source = context.createBufferSource();
     beat2Source.buffer = saveBufferList[25];
     beat2Source.connect(beatGain);
-    //beat2Source.connect(filter);
-    //filter.connect(beatGain);
     beatGain.connect(context.destination);
     var beatVolumeSlider = document.getElementById("slider2");
     var fraction = parseInt(beatVolumeSlider.value) / parseInt(beatVolumeSlider.max);
