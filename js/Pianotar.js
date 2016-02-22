@@ -1,9 +1,11 @@
-// TODO: Connect beats to filters and fix filter code
+// TODO: Minimize amount of global variables by passing them as parameters to the functions that need them
+// TODO: Organize init() method
+// TODO: Connect beats to filters
 // TODO: Make use of promises in BufferLoader.js
-// TODO: JavaScriptify this file, including removing as many global variables as possible
+// TODO: JavaScriptify this file
 // TODO: jQuerify this file
 // TODO: Make Pianotar pretty with Material Design and by cleaning up UI
-// TODO: Hide start beat button if respective beat is playing, hide stop beat button if it's not playing
+// TODO: Turn beat start/stop buttons into MDL switch toggles so multiple instances of them can't play simultaneously
 // TODO: Find better drum beats (at least one to replace Beat 2)
 // TODO: make JSDocs
 // TODO: Make Pianotar into Pianozela
@@ -13,15 +15,10 @@ var beat2Source;
 var beatGain;
 var blackKeysArray = [];
 var blackKeyWidth;
-var bufferLoader;
 var canvas;
 var canvas2d;
 var context;
 var filter;
-var keyIndex = 0;
-var keysSource = [];
-var noteIndex;
-var noteName;
 var notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 var numKeys = 24;
 var pianoGain;
@@ -35,9 +32,8 @@ function init() {
     whiteKeyWidth = canvas.width / 14;
     blackKeyWidth = 2 * (whiteKeyWidth / 3);
 
-    for (var i = 0; i < numKeys; i++) {
-        noteIndex = i % notes.length;
-        noteName = notes[noteIndex];
+    for (var i = 0, keyIndex = 0; i < numKeys; i++) {
+        var noteName = notes[i % notes.length];
         var x = keyIndex * whiteKeyWidth;
 
         if (noteName.length === 1) {
@@ -58,7 +54,7 @@ function init() {
     pianoGain = context.createGain();
     beatGain = context.createGain();
 
-    bufferLoader = new BufferLoader(
+    var bufferLoader = new BufferLoader(
             context,
             [
                 "./sounds/1.mp3",
@@ -127,18 +123,18 @@ function init() {
         drawPiano();
     });
 
-    var filter1 = document.getElementById("filter1");
+    var filterFrequency = document.getElementById("filterFrequency");
     var filterType = document.getElementById("filterType");
     var qValue = document.getElementById("qValue");
 
     filter.type = filterType.value;
     filter.gain.value = 40;
     filter.Q.value = qValue.value;
-    filter.frequency.value = filter1.value;
+    filter.frequency.value = filterFrequency.value;
 
     // filter frequency
-    filter1.addEventListener("change", function () {
-        filter.frequency.value = filter1.value;
+    filterFrequency.addEventListener("change", function () {
+        filter.frequency.value = filterFrequency.value;
     }, false);
 
     // filter type
@@ -181,6 +177,7 @@ function finishedLoading(bufferList) {
 }
 
 function outputKey(index) {
+    var keysSource = [];
     // Connect buffers to filter node
     for (var i = 0; i < numKeys; i++) {
         keysSource[i] = context.createBufferSource();
@@ -193,7 +190,7 @@ function outputKey(index) {
     pianoGain.connect(context.destination);
     var pianoVolumeSlider = document.getElementById("slider1");
     var fraction = parseInt(pianoVolumeSlider.value) / parseInt(pianoVolumeSlider.max);
-    this.pianoGain.gain.value = fraction * fraction;
+    pianoGain.gain.value = fraction * fraction;
 
     // Play note
     keysSource[index].start(0);
@@ -206,7 +203,7 @@ function playBeat1() {
     beatGain.connect(context.destination);
     var beatVolumeSlider = document.getElementById("slider2");
     var fraction = parseInt(beatVolumeSlider.value) / parseInt(beatVolumeSlider.max);
-    this.beatGain.gain.value = fraction * fraction;
+    beatGain.gain.value = fraction * fraction;
     beat1Source.loop = true;
     beat1Source.start(0);
 }
@@ -218,7 +215,7 @@ function playBeat2() {
     beatGain.connect(context.destination);
     var beatVolumeSlider = document.getElementById("slider2");
     var fraction = parseInt(beatVolumeSlider.value) / parseInt(beatVolumeSlider.max);
-    this.beatGain.gain.value = fraction * fraction;
+    beatGain.gain.value = fraction * fraction;
     beat2Source.loop = true;
     beat2Source.start(0);
 }
