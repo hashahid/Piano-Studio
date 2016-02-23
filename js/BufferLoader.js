@@ -4,10 +4,9 @@
  * http://www.html5rocks.com/en/tutorials/webaudio/intro/#toc-abstract
  * http://www.html5rocks.com/en/tutorials/webaudio/intro/js/buffer-loader.js
  */
-function BufferLoader(context, urlList, callback) {
+function BufferLoader(context, urlList) {
     this.context = context;
     this.urlList = urlList;
-    this.onload = callback;
     this.bufferList = new Array();
     this.loadCount = 0;
 }

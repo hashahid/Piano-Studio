@@ -1,11 +1,11 @@
-// TODO: Minimize amount of global variables by passing them as parameters to the functions that need them
+// TODO: Turn beat start/stop buttons into MDL switch toggles so multiple instances of them can't play simultaneously
+// TODO: Remove beat event listeners from HTML page and into this file so all global variables can be removed
 // TODO: Organize init() method
-// TODO: Connect beats to filters
 // TODO: Make use of promises in BufferLoader.js
 // TODO: JavaScriptify this file
 // TODO: jQuerify this file
+// TODO: keyboard support, can take inspiration from virtualpiano.net
 // TODO: Make Pianotar pretty with Material Design and by cleaning up UI
-// TODO: Turn beat start/stop buttons into MDL switch toggles so multiple instances of them can't play simultaneously
 // TODO: Find better drum beats (at least one to replace Beat 2)
 // TODO: make JSDocs
 // TODO: Make Pianotar into Pianozela
@@ -13,48 +13,41 @@
 var beat1Source;
 var beat2Source;
 var beatGain;
-var blackKeysArray = [];
-var blackKeyWidth;
-var canvas;
-var canvas2d;
 var context;
-var filter;
-var notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 var numKeys = 24;
-var pianoGain;
-var saveBufferList;
-var whiteKeysArray = [];
-var whiteKeyWidth;
+var bufferLoader;
 
 function init() {
-    canvas = document.querySelector("canvas");
-    canvas2d = canvas.getContext("2d");
-    whiteKeyWidth = canvas.width / 14;
-    blackKeyWidth = 2 * (whiteKeyWidth / 3);
+    var canvas = document.querySelector("canvas");
+    var canvasContext = canvas.getContext("2d");
+    var whiteKeyWidth = canvas.width / 14;
+    var blackKeyWidth = 2 * (whiteKeyWidth / 3);
 
+    var whiteKeys = [], blackKeys = [];
+    var notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     for (var i = 0, keyIndex = 0; i < numKeys; i++) {
         var noteName = notes[i % notes.length];
         var x = keyIndex * whiteKeyWidth;
 
         if (noteName.length === 1) {
-            whiteKeysArray.push([x, i]);
+            whiteKeys.push([x, i]);
             keyIndex++;
         }
         else {
             x -= blackKeyWidth / 2;
-            blackKeysArray.push([x, i]);
+            blackKeys.push([x, i]);
         }
     }
 
-    drawPiano();
+    drawPiano(canvas, canvasContext, whiteKeyWidth, blackKeyWidth);
 
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     context = new AudioContext();
-    filter = context.createBiquadFilter();
-    pianoGain = context.createGain();
+    var filter = context.createBiquadFilter();
+    var pianoGain = context.createGain();
     beatGain = context.createGain();
 
-    var bufferLoader = new BufferLoader(
+    bufferLoader = new BufferLoader(
             context,
             [
                 "./sounds/1.mp3",
@@ -81,10 +74,9 @@ function init() {
                 "./sounds/22.mp3",
                 "./sounds/23.mp3",
                 "./sounds/24.mp3",
-                "./sounds/drumbeat1.mp3",
-                "./sounds/drumbeat2.mp3"
-            ],
-            finishedLoading
+                "./sounds/beat1.mp3",
+                "./sounds/beat2.mp3"
+            ]
             );
 
     bufferLoader.load();
@@ -95,32 +87,32 @@ function init() {
         var y = e.clientY - rect.top;
         var a;
 
-        canvas2d.fillStyle = "#777777";
+        canvasContext.fillStyle = "#777777";
 
-        for (var i = 0; a = blackKeysArray[i++]; ) {
-            canvas2d.beginPath();
-            canvas2d.rect(a[0], 0, blackKeyWidth, 200);
-            if (canvas2d.isPointInPath(x, y)) {
-                canvas2d.fill();
-                outputKey(a[1]);
+        for (var i = 0; a = blackKeys[i++]; ) {
+            canvasContext.beginPath();
+            canvasContext.rect(a[0], 0, blackKeyWidth, 200);
+            if (canvasContext.isPointInPath(x, y)) {
+                canvasContext.fill();
+                outputKey(filter, pianoGain, a[1]);
                 return;
             }
         }
 
-        for (var i = 0; a = whiteKeysArray[i++]; ) {
-            canvas2d.beginPath();
-            canvas2d.rect(a[0], 0, whiteKeyWidth, 300);
-            if (canvas2d.isPointInPath(x, y)) {
-                canvas2d.fill();
-                drawBlackKeys();
-                outputKey(a[1]);
+        for (var i = 0; a = whiteKeys[i++]; ) {
+            canvasContext.beginPath();
+            canvasContext.rect(a[0], 0, whiteKeyWidth, 300);
+            if (canvasContext.isPointInPath(x, y)) {
+                canvasContext.fill();
+                drawBlackKeys(canvasContext, whiteKeyWidth, blackKeyWidth);
+                outputKey(filter, pianoGain, a[1]);
                 return;
             }
         }
     });
 
     canvas.addEventListener("mouseup", function() {
-        drawPiano();
+        drawPiano(this, canvasContext, whiteKeyWidth, blackKeyWidth);
     });
 
     var filterFrequency = document.getElementById("filterFrequency");
@@ -148,40 +140,34 @@ function init() {
     }, false);
 }
 
-function drawPiano() {
-    canvas2d.clearRect(0, 0, canvas.width, canvas.height);
-    drawWhiteKeys();
-    drawBlackKeys();
+function drawPiano(canvas, canvasContext, whiteKeyWidth, blackKeyWidth) {
+    canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+    drawWhiteKeys(canvasContext, whiteKeyWidth);
+    drawBlackKeys(canvasContext, whiteKeyWidth, blackKeyWidth);
 }
 
-function drawWhiteKeys() {
-    var x = whiteKeyWidth;
+function drawWhiteKeys(canvasContext, whiteKeyWidth) {
     for (var i = 0; i < 14; i++) {
-        canvas2d.rect(i * x, 0, x, 300);
-        canvas2d.stroke();
+        canvasContext.rect(i * whiteKeyWidth, 0, whiteKeyWidth, 300);
+        canvasContext.stroke();
     }
 }
 
-function drawBlackKeys() {
-    var x = blackKeyWidth;
-    canvas2d.fillStyle = "#000000";
+function drawBlackKeys(canvasContext, whiteKeyWidth, blackKeyWidth) {
+    canvasContext.fillStyle = "#000000";
     for (var i = 0; i <= 12; i++) {
         if (i === 2 || i === 6 || i === 9)
             continue;
-        canvas2d.fillRect((i * whiteKeyWidth) + x, 0, x, 200);
+        canvasContext.fillRect((i * whiteKeyWidth) + blackKeyWidth, 0, blackKeyWidth, 200);
     }
 }
 
-function finishedLoading(bufferList) {
-    saveBufferList = bufferList;
-}
-
-function outputKey(index) {
+function outputKey(filter, pianoGain, index) {
     var keysSource = [];
     // Connect buffers to filter node
     for (var i = 0; i < numKeys; i++) {
         keysSource[i] = context.createBufferSource();
-        keysSource[i].buffer = saveBufferList[i % numKeys];
+        keysSource[i].buffer = bufferLoader.bufferList[i % numKeys];
         keysSource[i].connect(filter);
     }
 
@@ -198,7 +184,7 @@ function outputKey(index) {
 
 function playBeat1() {
     beat1Source = context.createBufferSource();
-    beat1Source.buffer = saveBufferList[24];
+    beat1Source.buffer = bufferLoader.bufferList[numKeys];
     beat1Source.connect(beatGain);
     beatGain.connect(context.destination);
     var beatVolumeSlider = document.getElementById("slider2");
@@ -210,7 +196,7 @@ function playBeat1() {
 
 function playBeat2() {
     beat2Source = context.createBufferSource();
-    beat2Source.buffer = saveBufferList[25];
+    beat2Source.buffer = bufferLoader.bufferList[numKeys + 1];
     beat2Source.connect(beatGain);
     beatGain.connect(context.destination);
     var beatVolumeSlider = document.getElementById("slider2");
