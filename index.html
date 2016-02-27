@@ -4,10 +4,16 @@
         <title>The Pianotar</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="css/style.css"/>
+
+        <link rel="stylesheet" href="./css/style.css">
+        <link rel="stylesheet" href="./css/material.min.css">
+
         <script src="./js/Pianotar.js"></script>
         <script src="./js/BufferLoader.js"></script>
         <script src="./js/jquery-2.2.0.min.js"></script>
+        <script src="./js/material.min.js"></script>
+
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     </head>
     <body onload="init()">
         <h1>The Pianotar</h1>
@@ -16,7 +22,7 @@
         <div class="toolbarRow">
             <label>Filter type:&nbsp;
                 <select id="filterType" size="1">
-                    <option value="allpass" selected>Allpass</option>
+                    <option value="allpass">Allpass</option>
                     <option value="lowpass">Lowpass</option>
                     <option value="highpass">Highpass</option>
                     <option value="bandpass">Bandpass</option>
@@ -33,18 +39,16 @@
                 <input id="qValue" type="range" min=".0001" max="10" step=".0005" value="1"/>
             </label>
         </div>
-        <div class="toolbarRow">
-            <input type="button" value="Start Beat 1" onmousedown="playBeat1();"/>
-            <input type="button" value="Stop Beat 1" onmousedown="stopBeat1();" />
-            <input type="button" value="Start Beat 2" onmousedown="playBeat2();"/>
-            <input type="button" value="Stop Beat 2" onmousedown="stopBeat2();"/>
-        </div>
+        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="beat">
+            <input type="checkbox" id="beat" class="mdl-switch__input">
+            <span class="mdl-switch__label">Sample Beat</span>
+        </label>
         <div class="toolbarRow">
             <label>Piano Volume:&nbsp;
-                <input id="slider1" type="range" min="0" max="100" value="100" />
+                <input id="pianoVolume" type="range" min="0" max="100" value="100" />
             </label>
             <label>Beat Volume:&nbsp;
-                <input id="slider2" type="range" min="0" max="100" value="100" />
+                <input id="beatVolume" type="range" min="0" max="100" value="100" />
             </label>
         </div>
         <canvas width="1280" height="300"></canvas>
