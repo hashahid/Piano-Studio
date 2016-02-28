@@ -1,56 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>The Pianotar</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <title>The Pianotar</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <link rel="stylesheet" href="./css/style.css">
-        <link rel="stylesheet" href="./css/material.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+    <link rel="stylesheet" href="./css/material.min.css">
 
-        <script src="./js/Pianotar.js"></script>
-        <script src="./js/BufferLoader.js"></script>
-        <script src="./js/jquery-2.2.0.min.js"></script>
-        <script src="./js/material.min.js"></script>
-
-        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    </head>
-    <body onload="init()">
-        <h1>The Pianotar</h1>
-        <h3>Looks like a piano, sounds like a guitar!</h3>
-        <h4>by Haseeb Shahid</h4>
-        <div class="toolbarRow">
-            <label>Filter type:&nbsp;
-                <select id="filterType" size="1">
-                    <option value="allpass">Allpass</option>
-                    <option value="lowpass">Lowpass</option>
-                    <option value="highpass">Highpass</option>
-                    <option value="bandpass">Bandpass</option>
-                    <option value="notch">Notch</option>
-                    <option value="lowshelf">lowshelf</option>
-                    <option value="highshelf">Highshelf</option>
-                    <option value="peaking">Peaking</option>
-                </select>
-            </label>
-            <label>Filter frequency:&nbsp;
-                <input id="filterFrequency" type="range" min="20" max="5000" step="5" value="2500"   />
-            </label>
-            <label>Quality (Q) value:&nbsp;
-                <input id="qValue" type="range" min=".0001" max="10" step=".0005" value="1"/>
-            </label>
-        </div>
-        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="beat">
-            <input type="checkbox" id="beat" class="mdl-switch__input">
-            <span class="mdl-switch__label">Sample Beat</span>
-        </label>
-        <div class="toolbarRow">
+    <script src="./js/Pianotar.js"></script>
+    <script src="./js/BufferLoader.js"></script>
+    <script src="./js/jquery-2.2.0.min.js"></script>
+    <script src="./js/material.min.js"></script>
+</head>
+<body onload="init()">
+<h1>The Pianotar</h1>
+<h3>Looks like a piano, sounds like a guitar!</h3>
+<label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="beat">
+    <input type="checkbox" id="beat" class="mdl-switch__input">
+    <span class="mdl-switch__label">Sample Beat</span>
+</label>
+<table class="toolbarRow">
+    <tr>
+        <td>
             <label>Piano Volume:&nbsp;
-                <input id="pianoVolume" type="range" min="0" max="100" value="100" />
+                <input id="pianoVolume" class="mdl-slider mdl-js-slider" type="range" min="0" max="100" value="100"/>
             </label>
+        </td>
+        <td>
             <label>Beat Volume:&nbsp;
-                <input id="beatVolume" type="range" min="0" max="100" value="100" />
+                <input id="beatVolume" class="mdl-slider mdl-js-slider" type="range" min="0" max="100" value="100"/>
             </label>
-        </div>
-        <canvas width="1280" height="300"></canvas>
-    </body>
+        </td>
+    </tr>
+</table>
+<canvas width="1280" height="300"></canvas>
+</body>
 </html>

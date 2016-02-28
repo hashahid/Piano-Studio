@@ -1,22 +1,42 @@
-// TODO: jQuerify this file
-// TODO: Organize init() method
 // TODO: Make use of promises in BufferLoader.js
-// TODO: JavaScriptify this file
+// TODO: make JSDocs
 // TODO: Add support for custom beat/backing track
+// TODO: Use real piano sounds and add one or two more octaves
 // TODO: keyboard support, can take inspiration from virtualpiano.net
 // TODO: Make Pianotar pretty with Material Design and by cleaning up UI
 // TODO: Find better a better sample beat
-// TODO: make JSDocs
+// TODO: Add visualization canvas below piano canvas
+// TODO: Allow users to record what they play and maybe save to file
 
 function init() {
+    // Drawing variables
     var canvas = document.querySelector("canvas");
     var canvasContext = canvas.getContext("2d");
-    var whiteKeyWidth = canvas.width / 14;
-    var blackKeyWidth = 2 * (whiteKeyWidth / 3);
-    var numKeys = 24;
+    var whiteKeyWidth = canvas.width / 14, blackKeyWidth = 2 * (whiteKeyWidth / 3);
 
-    var whiteKeys = [], blackKeys = [];
+    // Metadata variables
+    var numKeys = 24;
     var notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    var whiteKeys = [], blackKeys = [];
+
+    // Web audio variables
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    var audioContext = new AudioContext();
+    var pianoGain = audioContext.createGain(), beatGain = audioContext.createGain();
+    var keysSource = [], beatSource = audioContext.createBufferSource();
+    var bufferLoader = new BufferLoader(
+        audioContext,
+        [
+            "./sounds/1.mp3", "./sounds/2.mp3", "./sounds/3.mp3", "./sounds/4.mp3", "./sounds/5.mp3",
+            "./sounds/6.mp3", "./sounds/7.mp3", "./sounds/8.mp3", "./sounds/9.mp3", "./sounds/10.mp3",
+            "./sounds/11.mp3", "./sounds/12.mp3", "./sounds/13.mp3", "./sounds/14.mp3", "./sounds/15.mp3",
+            "./sounds/16.mp3", "./sounds/17.mp3", "./sounds/18.mp3", "./sounds/19.mp3", "./sounds/20.mp3",
+            "./sounds/21.mp3", "./sounds/22.mp3", "./sounds/23.mp3", "./sounds/24.mp3", "./sounds/samplebeat.mp3"
+        ]
+    );
+
+    drawPiano(canvasContext, canvas.width, canvas.height, whiteKeyWidth, blackKeyWidth);
+
     for (var i = 0, keyIndex = 0; i < numKeys; i++) {
         var noteName = notes[i % notes.length];
         var x = keyIndex * whiteKeyWidth;
@@ -31,51 +51,12 @@ function init() {
         }
     }
 
-    drawPiano(canvasContext, canvas.width, canvas.height, whiteKeyWidth, blackKeyWidth);
-
-    window.AudioContext = window.AudioContext || window.webkitAudioContext;
-    var audioContext = new AudioContext();
-    var pianoGain = audioContext.createGain();
     pianoGain.connect(audioContext.destination);
-    var filter = audioContext.createBiquadFilter();
-    filter.type = "allpass";
-    filter.connect(pianoGain);
-    var beatGain = audioContext.createGain();
     beatGain.connect(audioContext.destination);
-
-    var bufferLoader = new BufferLoader(
-            audioContext,
-            [
-                "./sounds/1.mp3",
-                "./sounds/2.mp3",
-                "./sounds/3.mp3",
-                "./sounds/4.mp3",
-                "./sounds/5.mp3",
-                "./sounds/6.mp3",
-                "./sounds/7.mp3",
-                "./sounds/8.mp3",
-                "./sounds/9.mp3",
-                "./sounds/10.mp3",
-                "./sounds/11.mp3",
-                "./sounds/12.mp3",
-                "./sounds/13.mp3",
-                "./sounds/14.mp3",
-                "./sounds/15.mp3",
-                "./sounds/16.mp3",
-                "./sounds/17.mp3",
-                "./sounds/18.mp3",
-                "./sounds/19.mp3",
-                "./sounds/20.mp3",
-                "./sounds/21.mp3",
-                "./sounds/22.mp3",
-                "./sounds/23.mp3",
-                "./sounds/24.mp3",
-                "./sounds/samplebeat.mp3"
-            ]
-    );
-
+    beatSource.loop = true;
     bufferLoader.load();
 
+    // Register event listeners
     canvas.addEventListener("mousedown", function (event) {
         var rect = canvas.getBoundingClientRect();
         var x = event.clientX - rect.left;
@@ -84,74 +65,46 @@ function init() {
 
         canvasContext.fillStyle = "#777777";
 
-        for (var i = 0; a = blackKeys[i++]; ) {
+        for (var i = 0; a = blackKeys[i++];) {
             canvasContext.beginPath();
             canvasContext.rect(a[0], 0, blackKeyWidth, 200);
             if (canvasContext.isPointInPath(x, y)) {
                 canvasContext.fill();
-                outputKey(numKeys, audioContext, bufferLoader, filter, a[1]);
+                outputKey(keysSource, a[1], audioContext, bufferLoader, pianoGain);
                 return;
             }
         }
 
-        for (var i = 0; a = whiteKeys[i++]; ) {
+        for (var i = 0; a = whiteKeys[i++];) {
             canvasContext.beginPath();
             canvasContext.rect(a[0], 0, whiteKeyWidth, 300);
             if (canvasContext.isPointInPath(x, y)) {
                 canvasContext.fill();
                 drawBlackKeys(canvasContext, whiteKeyWidth, blackKeyWidth);
-                outputKey(numKeys, audioContext, bufferLoader, filter, a[1]);
+                outputKey(keysSource, a[1], audioContext, bufferLoader, pianoGain);
                 return;
             }
         }
     });
 
-    canvas.addEventListener("mouseup", function() {
+    canvas.addEventListener("mouseup", function () {
         drawPiano(canvasContext, this.width, this.height, whiteKeyWidth, blackKeyWidth);
     });
 
-    var filterFrequency = document.getElementById("filterFrequency");
-    var qValue = document.getElementById("qValue");
-
-    //filter.type = filterType.value;
-    filter.gain.value = 40;
-    filter.Q.value = qValue.value;
-    filter.frequency.value = filterFrequency.value;
-
-    // filter frequency
-    filterFrequency.addEventListener("change", function () {
-        filter.frequency.value = filterFrequency.value;
-    });
-
-    // filter type
-    $("#filterType").on("change", function() {
-        filter.type = this.value;
-    })
-
-    // filter quality
-    qValue.addEventListener("change", function () {
-        filter.Q.value = qValue.value;
-    });
-
-    var beatSource = audioContext.createBufferSource();
-    beatSource.loop = true;
-
-    $("#beat").on("change", function() {
+    $("#beat").on("change", function () {
         if (this.checked)
             playBeat(beatSource, beatGain, bufferLoader, numKeys);
         else
             stopBeat(beatSource);
     });
 
-    $("#beatVolume").on("change", function() {
+    $("#beatVolume").on("change", function () {
         var fraction = parseInt(this.value) / parseInt(this.max);
         beatGain.gain.value = fraction * fraction;
-        beatSource.connect(beatGain);
     });
 
-    var pianoVolume = document.getElementById("pianoVolume");
-    pianoVolume.addEventListener("change", function() {
-        var fraction = parseInt(pianoVolume.value) / parseInt(pianoVolume.max);
+    $("#pianoVolume").on("change", function () {
+        var fraction = parseInt(this.value) / parseInt(this.max);
         pianoGain.gain.value = fraction * fraction;
     });
 }
@@ -178,16 +131,10 @@ function drawBlackKeys(canvasContext, whiteKeyWidth, blackKeyWidth) {
     }
 }
 
-function outputKey(numKeys, audioContext, bufferLoader, filter, index) {
-    var keysSource = [];
-    // Connect buffers to filter node
-    for (var i = 0; i < numKeys; i++) {
-        keysSource[i] = audioContext.createBufferSource();
-        keysSource[i].buffer = bufferLoader.bufferList[i % numKeys];
-        keysSource[i].connect(filter);
-    }
-
-    // Play note
+function outputKey(keysSource, index, audioContext, bufferLoader, pianoGain) {
+    keysSource[index] = audioContext.createBufferSource();
+    keysSource[index].connect(pianoGain);
+    keysSource[index].buffer = bufferLoader.bufferList[index];
     keysSource[index].start(0);
 }
 
