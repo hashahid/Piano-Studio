@@ -4,13 +4,25 @@
  * http://www.html5rocks.com/en/tutorials/webaudio/intro/#toc-abstract
  * http://www.html5rocks.com/en/tutorials/webaudio/intro/js/buffer-loader.js
  */
+
+/**
+ * Creates objects that can decode audio and store them in an Array of buffers.
+ * @param {AudioContext} context - The audio-processing graph responsible for node creation and audio processing.
+ * @param {Array} urlList - The Array holding paths to audio files.
+ * @constructor
+ */
 function BufferLoader(context, urlList) {
     this.context = context;
     this.urlList = urlList;
-    this.bufferList = new Array();
+    this.bufferList = [];
     this.loadCount = 0;
 }
 
+/**
+ * Decode audio data asynchronously and load the buffer.
+ * @param {string} url - The path to an audio file.
+ * @param {number} index - The index of the audio file in both the URL and buffer lists.
+ */
 BufferLoader.prototype.loadBuffer = function (url, index) {
     // Load buffer asynchronously
     var request = new XMLHttpRequest();
@@ -45,7 +57,10 @@ BufferLoader.prototype.loadBuffer = function (url, index) {
     request.send();
 };
 
+/**
+ * Load the buffer for each audio file in the URL list.
+ */
 BufferLoader.prototype.load = function () {
-    for (var i = 0; i < this.urlList.length; ++i)
+    for (var i = 0; i < this.urlList.length; i++)
         this.loadBuffer(this.urlList[i], i);
 };

@@ -1,13 +1,15 @@
 // TODO: Make use of promises in BufferLoader.js
-// TODO: make JSDocs
+// TODO: Find a better sample beat
 // TODO: Add support for custom beat/backing track
 // TODO: Use real piano sounds and add one or two more octaves
 // TODO: keyboard support, can take inspiration from virtualpiano.net
 // TODO: Make Pianotar pretty with Material Design and by cleaning up UI
-// TODO: Find better a better sample beat
 // TODO: Add visualization canvas below piano canvas
 // TODO: Allow users to record what they play and maybe save to file
 
+/**
+ * Initialize variables, draw piano, connect audio nodes, load buffers, and register event listeners.
+ */
 function init() {
     // Drawing variables
     var canvas = document.querySelector("canvas");
@@ -70,7 +72,7 @@ function init() {
             canvasContext.rect(a[0], 0, blackKeyWidth, 200);
             if (canvasContext.isPointInPath(x, y)) {
                 canvasContext.fill();
-                outputKey(keysSource, a[1], audioContext, bufferLoader, pianoGain);
+                playKey(keysSource, a[1], audioContext, pianoGain, bufferLoader);
                 return;
             }
         }
@@ -81,7 +83,7 @@ function init() {
             if (canvasContext.isPointInPath(x, y)) {
                 canvasContext.fill();
                 drawBlackKeys(canvasContext, whiteKeyWidth, blackKeyWidth);
-                outputKey(keysSource, a[1], audioContext, bufferLoader, pianoGain);
+                playKey(keysSource, a[1], audioContext, pianoGain, bufferLoader);
                 return;
             }
         }
@@ -91,7 +93,7 @@ function init() {
         drawPiano(canvasContext, this.width, this.height, whiteKeyWidth, blackKeyWidth);
     });
 
-    $("#beat").on("change", function () {
+    $("#sampleBeat").on("change", function () {
         if (this.checked)
             playBeat(beatSource, beatGain, bufferLoader, numKeys);
         else
@@ -107,14 +109,31 @@ function init() {
         var fraction = parseInt(this.value) / parseInt(this.max);
         pianoGain.gain.value = fraction * fraction;
     });
+
+    $("#customTrackBtn").on("click", function() {
+        $("#customTrack").trigger("click");
+    });
 }
 
+/**
+ * Clear the canvas, draw the white keys of the piano, and then the black keys on top.
+ * @param {CanvasRenderingContext2D} canvasContext - The canvas' 2D rendering context.
+ * @param {number} canvasWidth - The canvas's width.
+ * @param {number} canvasHeight - The canvas' height.
+ * @param {number} whiteKeyWidth - The width of an individual white key.
+ * @param {number} blackKeyWidth - The width of an individual black key.
+ */
 function drawPiano(canvasContext, canvasWidth, canvasHeight, whiteKeyWidth, blackKeyWidth) {
     canvasContext.clearRect(0, 0, canvasWidth, canvasHeight);
     drawWhiteKeys(canvasContext, whiteKeyWidth);
     drawBlackKeys(canvasContext, whiteKeyWidth, blackKeyWidth);
 }
 
+/**
+ * Draw the white keys of the piano.
+ * @param {CanvasRenderingContext2D} canvasContext - The canvas' 2D rendering context.
+ * @param {number} whiteKeyWidth - The width of an individual white key.
+ */
 function drawWhiteKeys(canvasContext, whiteKeyWidth) {
     for (var i = 0; i < 14; i++) {
         canvasContext.rect(i * whiteKeyWidth, 0, whiteKeyWidth, 300);
@@ -122,6 +141,12 @@ function drawWhiteKeys(canvasContext, whiteKeyWidth) {
     }
 }
 
+/**
+ * Draw the black keys of the piano.
+ * @param {CanvasRenderingContext2D} canvasContext - The canvas' 2D rendering context.
+ * @param {number} whiteKeyWidth - The width of an individual white key.
+ * @param {number} blackKeyWidth - The width of an individual black key.
+ */
 function drawBlackKeys(canvasContext, whiteKeyWidth, blackKeyWidth) {
     canvasContext.fillStyle = "#000000";
     for (var i = 0; i < 13; i++) {
@@ -131,19 +156,38 @@ function drawBlackKeys(canvasContext, whiteKeyWidth, blackKeyWidth) {
     }
 }
 
-function outputKey(keysSource, index, audioContext, bufferLoader, pianoGain) {
+/**
+ * Connect the decoded piano key audio buffer to the AudioContext and play the key.
+ * @param {Array} keysSource - The Array of AudioBufferSourceNodes responsible for playing piano keys.
+ * @param {number} index - The index of a piano key.
+ * @param {AudioContext} audioContext - The audio-processing graph responsible for node creation and audio processing.
+ * @param {GainNode} pianoGain - The AudioNode responsible for controlling the piano volume.
+ * @param {BufferLoader} bufferLoader - The BufferLoader object holding the decoded audio buffers.
+ */
+function playKey(keysSource, index, audioContext, pianoGain, bufferLoader) {
     keysSource[index] = audioContext.createBufferSource();
     keysSource[index].connect(pianoGain);
     keysSource[index].buffer = bufferLoader.bufferList[index];
     keysSource[index].start(0);
 }
 
-function playBeat(beatSource, beatGain, bufferLoader, numKeys) {
+/**
+ * Connect the decoded beat audio buffer to a GainNode (which is connected to the AudioContext) and play it.
+ * @param {AudioBufferSourceNode} beatSource - The AudioNode responsible for playing the beat.
+ * @param {GainNode} beatGain - The AudioNode responsible for controlling the beat volume.
+ * @param {BufferLoader} bufferLoader - The BufferLoader object holding the decoded audio buffers.
+ * @param {number} index - The index of the beat in the BufferLoader's buffer list Array.
+ */
+function playBeat(beatSource, beatGain, bufferLoader, index) {
     beatSource.connect(beatGain);
-    beatSource.buffer = bufferLoader.bufferList[numKeys];
+    beatSource.buffer = bufferLoader.bufferList[index];
     beatSource.start(0);
 }
 
+/**
+ * Stop the beat from playing.
+ * @param {AudioBufferSourceNode} beatSource - The AudioNode responsible for playing the beat.
+ */
 function stopBeat(beatSource) {
     beatSource.disconnect(0);
 }
