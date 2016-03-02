@@ -1,6 +1,6 @@
 // TODO: Make use of promises in BufferLoader.js
-// TODO: Find a better sample beat
-// TODO: Add support for custom beat/backing track
+// TODO: Find a better sample track
+// TODO: Add support for custom backing track
 // TODO: Use real piano sounds and add one or two more octaves
 // TODO: keyboard support, can take inspiration from virtualpiano.net
 // TODO: Make Pianotar pretty with Material Design and by cleaning up UI
@@ -24,8 +24,10 @@ function init() {
     // Web audio variables
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     var audioContext = new AudioContext();
-    var pianoGain = audioContext.createGain(), beatGain = audioContext.createGain();
-    var keysSource = [], beatSource = audioContext.createBufferSource();
+    var pianoGain = audioContext.createGain(), trackGain = audioContext.createGain();
+    var keySources = [],
+        sampleTrackSource = audioContext.createBufferSource(),
+        customTrackSource = audioContext.createBufferSource();
     var bufferLoader = new BufferLoader(
         audioContext,
         [
@@ -33,7 +35,7 @@ function init() {
             "./sounds/6.mp3", "./sounds/7.mp3", "./sounds/8.mp3", "./sounds/9.mp3", "./sounds/10.mp3",
             "./sounds/11.mp3", "./sounds/12.mp3", "./sounds/13.mp3", "./sounds/14.mp3", "./sounds/15.mp3",
             "./sounds/16.mp3", "./sounds/17.mp3", "./sounds/18.mp3", "./sounds/19.mp3", "./sounds/20.mp3",
-            "./sounds/21.mp3", "./sounds/22.mp3", "./sounds/23.mp3", "./sounds/24.mp3", "./sounds/samplebeat.mp3"
+            "./sounds/21.mp3", "./sounds/22.mp3", "./sounds/23.mp3", "./sounds/24.mp3", "./sounds/sampletrack.mp3"
         ]
     );
 
@@ -54,8 +56,8 @@ function init() {
     }
 
     pianoGain.connect(audioContext.destination);
-    beatGain.connect(audioContext.destination);
-    beatSource.loop = true;
+    trackGain.connect(audioContext.destination);
+    sampleTrackSource.loop = customTrackSource.loop = true;
     bufferLoader.load();
 
     // Register event listeners
@@ -63,27 +65,27 @@ function init() {
         var rect = canvas.getBoundingClientRect();
         var x = event.clientX - rect.left;
         var y = event.clientY - rect.top;
-        var a;
+        var key;
 
         canvasContext.fillStyle = "#777777";
 
-        for (var i = 0; a = blackKeys[i++];) {
+        for (i = 0; key = blackKeys[i++];) {
             canvasContext.beginPath();
-            canvasContext.rect(a[0], 0, blackKeyWidth, 200);
+            canvasContext.rect(key[0], 0, blackKeyWidth, 200);
             if (canvasContext.isPointInPath(x, y)) {
                 canvasContext.fill();
-                playKey(keysSource, a[1], audioContext, pianoGain, bufferLoader);
+                playKey(keySources, key[1], audioContext, pianoGain, bufferLoader);
                 return;
             }
         }
 
-        for (var i = 0; a = whiteKeys[i++];) {
+        for (i = 0; key = whiteKeys[i++];) {
             canvasContext.beginPath();
-            canvasContext.rect(a[0], 0, whiteKeyWidth, 300);
+            canvasContext.rect(key[0], 0, whiteKeyWidth, 300);
             if (canvasContext.isPointInPath(x, y)) {
                 canvasContext.fill();
                 drawBlackKeys(canvasContext, whiteKeyWidth, blackKeyWidth);
-                playKey(keysSource, a[1], audioContext, pianoGain, bufferLoader);
+                playKey(keySources, key[1], audioContext, pianoGain, bufferLoader);
                 return;
             }
         }
@@ -93,16 +95,28 @@ function init() {
         drawPiano(canvasContext, this.width, this.height, whiteKeyWidth, blackKeyWidth);
     });
 
-    $("#sampleBeat").on("change", function () {
+    $("#sampleTrackToggle").on("change", function () {
         if (this.checked)
-            playBeat(beatSource, beatGain, bufferLoader, numKeys);
+            playTrack(sampleTrackSource, trackGain, bufferLoader, numKeys);
         else
-            stopBeat(beatSource);
+            stopTrack(sampleTrackSource);
     });
 
-    $("#beatVolume").on("change", function () {
+    $("#customTrackToggle").on("change", function() {
+        if (this.checked) {
+            var files = $("#customTrackFile")[0].files;
+            var file = URL.createObjectURL(files[0]);
+            bufferLoader.urlList[numKeys + 1] = file;
+            bufferLoader.loadBuffer(file, numKeys + 1);
+            playTrack(customTrackSource, trackGain, bufferLoader, numKeys + 1);
+        }
+        else
+            stopTrack(customTrackSource);
+    });
+
+    $("#trackVolume").on("change", function () {
         var fraction = parseInt(this.value) / parseInt(this.max);
-        beatGain.gain.value = fraction * fraction;
+        trackGain.gain.value = fraction * fraction;
     });
 
     $("#pianoVolume").on("change", function () {
@@ -111,7 +125,7 @@ function init() {
     });
 
     $("#customTrackBtn").on("click", function() {
-        $("#customTrack").trigger("click");
+        $("#customTrackFile").trigger("click");
     });
 }
 
@@ -158,36 +172,36 @@ function drawBlackKeys(canvasContext, whiteKeyWidth, blackKeyWidth) {
 
 /**
  * Connect the decoded piano key audio buffer to the AudioContext and play the key.
- * @param {Array} keysSource - The Array of AudioBufferSourceNodes responsible for playing piano keys.
+ * @param {Array} keySources - The Array of AudioBufferSourceNodes responsible for playing piano keys.
  * @param {number} index - The index of a piano key.
  * @param {AudioContext} audioContext - The audio-processing graph responsible for node creation and audio processing.
  * @param {GainNode} pianoGain - The AudioNode responsible for controlling the piano volume.
  * @param {BufferLoader} bufferLoader - The BufferLoader object holding the decoded audio buffers.
  */
-function playKey(keysSource, index, audioContext, pianoGain, bufferLoader) {
-    keysSource[index] = audioContext.createBufferSource();
-    keysSource[index].connect(pianoGain);
-    keysSource[index].buffer = bufferLoader.bufferList[index];
-    keysSource[index].start(0);
+function playKey(keySources, index, audioContext, pianoGain, bufferLoader) {
+    keySources[index] = audioContext.createBufferSource();
+    keySources[index].connect(pianoGain);
+    keySources[index].buffer = bufferLoader.bufferList[index];
+    keySources[index].start(0);
 }
 
 /**
- * Connect the decoded beat audio buffer to a GainNode (which is connected to the AudioContext) and play it.
- * @param {AudioBufferSourceNode} beatSource - The AudioNode responsible for playing the beat.
- * @param {GainNode} beatGain - The AudioNode responsible for controlling the beat volume.
+ * Connect the decoded audio buffer to a GainNode (which is connected to the AudioContext) and play it.
+ * @param {AudioBufferSourceNode} source - The AudioNode responsible for playing the track.
+ * @param {GainNode} gain - The AudioNode responsible for controlling the track volume.
  * @param {BufferLoader} bufferLoader - The BufferLoader object holding the decoded audio buffers.
- * @param {number} index - The index of the beat in the BufferLoader's buffer list Array.
+ * @param {number} index - The index of the track in the BufferLoader's buffer list Array.
  */
-function playBeat(beatSource, beatGain, bufferLoader, index) {
-    beatSource.connect(beatGain);
-    beatSource.buffer = bufferLoader.bufferList[index];
-    beatSource.start(0);
+function playTrack(source, gain, bufferLoader, index) {
+    source.connect(gain);
+    source.buffer = bufferLoader.bufferList[index];
+    source.start(0);
 }
 
 /**
- * Stop the beat from playing.
- * @param {AudioBufferSourceNode} beatSource - The AudioNode responsible for playing the beat.
+ * Stop the track from playing.
+ * @param {AudioBufferSourceNode} source - The AudioNode responsible for playing the track.
  */
-function stopBeat(beatSource) {
-    beatSource.disconnect(0);
+function stopTrack(source) {
+    source.disconnect(0);
 }

@@ -17,15 +17,27 @@
 <body onload="init()">
 <h1>The Pianotar</h1>
 <h3>Looks like a piano, sounds like a guitar!</h3>
-<label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="sampleBeat">
-    <input type="checkbox" id="sampleBeat" class="mdl-switch__input">
-    <span class="mdl-switch__label">Sample Beat</span>
-</label>
+<table>
+    <tr>
+        <td style="padding-right: 40px;">
+            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="sampleTrackToggle">
+                <input type="checkbox" id="sampleTrackToggle" class="mdl-switch__input">
+                <span class="mdl-switch__label">Sample Track</span>
+            </label>
+        </td>
+        <td>
+            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="customTrackToggle">
+                <input type="checkbox" id="customTrackToggle" class="mdl-switch__input">
+                <span class="mdl-switch__label">Custom Track</span>
+            </label>
+        </td>
+    </tr>
+</table>
 <div class="controlRow">
     <button id="customTrackBtn" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
         Upload Track
     </button>
-    <input id="customTrack" type="file" name="customTrack" accept="audio/*" style="display: none;">
+    <input id="customTrackFile" type="file" name="customTrack" accept="audio/*" style="display: none;">
 </div>
 <table class="controlRow">
     <tr>
@@ -35,8 +47,8 @@
             </label>
         </td>
         <td>
-            <label>Beat Volume:&nbsp;
-                <input id="beatVolume" class="mdl-slider mdl-js-slider" type="range" min="0" max="100" value="100">
+            <label>Track Volume:&nbsp;
+                <input id="trackVolume" class="mdl-slider mdl-js-slider" type="range" min="0" max="100" value="100">
             </label>
         </td>
     </tr>
