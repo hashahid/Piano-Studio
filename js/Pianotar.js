@@ -1,6 +1,5 @@
 // TODO: Make use of promises in BufferLoader.js
 // TODO: Find a better sample track
-// TODO: Add support for custom backing track
 // TODO: Use real piano sounds and add one or two more octaves
 // TODO: keyboard support, can take inspiration from virtualpiano.net
 // TODO: Make Pianotar pretty with Material Design and by cleaning up UI
@@ -16,10 +15,11 @@ function init() {
     var canvasContext = canvas.getContext("2d");
     var whiteKeyWidth = canvas.width / 14, blackKeyWidth = 2 * (whiteKeyWidth / 3);
 
-    // Metadata variables
+    // Setup variables
     var numKeys = 24;
     var notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     var whiteKeys = [], blackKeys = [];
+    var customTrackFile = "";
 
     // Web audio variables
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -57,7 +57,7 @@ function init() {
 
     pianoGain.connect(audioContext.destination);
     trackGain.connect(audioContext.destination);
-    sampleTrackSource.loop = customTrackSource.loop = true;
+    sampleTrackSource.loop = true;
     bufferLoader.load();
 
     // Register event listeners
@@ -103,20 +103,25 @@ function init() {
     });
 
     $("#customTrackToggle").on("change", function() {
-        if (this.checked) {
-            var files = $("#customTrackFile")[0].files;
-            var file = URL.createObjectURL(files[0]);
-            bufferLoader.urlList[numKeys + 1] = file;
-            bufferLoader.loadBuffer(file, numKeys + 1);
+        if (this.checked)
             playTrack(customTrackSource, trackGain, bufferLoader, numKeys + 1);
-        }
         else
             stopTrack(customTrackSource);
     });
 
-    $("#trackVolume").on("change", function () {
-        var fraction = parseInt(this.value) / parseInt(this.max);
-        trackGain.gain.value = fraction * fraction;
+    $("#customTrackBtn").on("click", function() {
+        $("#customTrackFile").trigger("click");
+    });
+
+    $("#customTrackFile").on("change", function() {
+        // reset custom track
+        stopTrack(customTrackSource);
+        customTrackSource = audioContext.createBufferSource();
+        customTrackSource.loop = true;
+        // load new file
+        customTrackFile = URL.createObjectURL(this.files[0]);
+        bufferLoader.urlList[numKeys + 1] = customTrackFile;
+        bufferLoader.loadBuffer(file, numKeys + 1);
     });
 
     $("#pianoVolume").on("change", function () {
@@ -124,8 +129,9 @@ function init() {
         pianoGain.gain.value = fraction * fraction;
     });
 
-    $("#customTrackBtn").on("click", function() {
-        $("#customTrackFile").trigger("click");
+    $("#trackVolume").on("change", function () {
+        var fraction = parseInt(this.value) / parseInt(this.max);
+        trackGain.gain.value = fraction * fraction;
     });
 }
 
