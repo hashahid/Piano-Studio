@@ -1,5 +1,3 @@
-// TODO: Make use of promises in BufferLoader.js
-// TODO: Find a better sample track
 // TODO: Use real piano sounds and add one or two more octaves
 // TODO: keyboard support, can take inspiration from virtualpiano.net
 // TODO: Make Pianotar pretty with Material Design and by cleaning up UI
@@ -11,15 +9,15 @@
  */
 function init() {
     // Drawing variables
-    var canvas = document.querySelector("canvas");
-    var canvasContext = canvas.getContext("2d");
+    var canvas = document.querySelector('canvas');
+    var canvasContext = canvas.getContext('2d');
     var whiteKeyWidth = canvas.width / 14, blackKeyWidth = 2 * (whiteKeyWidth / 3);
 
     // Setup variables
-    var numKeys = 24;
+    const NUMBER_OF_KEYS = 24;
     var notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     var whiteKeys = [], blackKeys = [];
-    var customTrackFile = "";
+    var customTrackFile = '';
 
     // Web audio variables
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -31,17 +29,17 @@ function init() {
     var bufferLoader = new BufferLoader(
         audioContext,
         [
-            "./sounds/1.mp3", "./sounds/2.mp3", "./sounds/3.mp3", "./sounds/4.mp3", "./sounds/5.mp3",
-            "./sounds/6.mp3", "./sounds/7.mp3", "./sounds/8.mp3", "./sounds/9.mp3", "./sounds/10.mp3",
-            "./sounds/11.mp3", "./sounds/12.mp3", "./sounds/13.mp3", "./sounds/14.mp3", "./sounds/15.mp3",
-            "./sounds/16.mp3", "./sounds/17.mp3", "./sounds/18.mp3", "./sounds/19.mp3", "./sounds/20.mp3",
-            "./sounds/21.mp3", "./sounds/22.mp3", "./sounds/23.mp3", "./sounds/24.mp3", "./sounds/sampletrack.mp3"
+            './sounds/1.mp3', './sounds/2.mp3', './sounds/3.mp3', './sounds/4.mp3', './sounds/5.mp3',
+            './sounds/6.mp3', './sounds/7.mp3', './sounds/8.mp3', './sounds/9.mp3', './sounds/10.mp3',
+            './sounds/11.mp3', './sounds/12.mp3', './sounds/13.mp3', './sounds/14.mp3', './sounds/15.mp3',
+            './sounds/16.mp3', './sounds/17.mp3', './sounds/18.mp3', './sounds/19.mp3', './sounds/20.mp3',
+            './sounds/21.mp3', './sounds/22.mp3', './sounds/23.mp3', './sounds/24.mp3', './sounds/sampletrack.wav'
         ]
     );
 
     drawPiano(canvasContext, canvas.width, canvas.height, whiteKeyWidth, blackKeyWidth);
 
-    for (var i = 0, keyIndex = 0; i < numKeys; i++) {
+    for (var i = 0, keyIndex = 0; i < NUMBER_OF_KEYS; i++) {
         var noteName = notes[i % notes.length];
         var x = keyIndex * whiteKeyWidth;
 
@@ -61,13 +59,13 @@ function init() {
     bufferLoader.load();
 
     // Register event listeners
-    canvas.addEventListener("mousedown", function (event) {
+    canvas.addEventListener('mousedown', function (event) {
         var rect = canvas.getBoundingClientRect();
         var x = event.clientX - rect.left;
         var y = event.clientY - rect.top;
         var key;
 
-        canvasContext.fillStyle = "#777777";
+        canvasContext.fillStyle = '#777777';
 
         for (i = 0; key = blackKeys[i++];) {
             canvasContext.beginPath();
@@ -91,45 +89,45 @@ function init() {
         }
     });
 
-    canvas.addEventListener("mouseup", function () {
+    canvas.addEventListener('mouseup', function () {
         drawPiano(canvasContext, this.width, this.height, whiteKeyWidth, blackKeyWidth);
     });
 
-    $("#sampleTrackToggle").on("change", function () {
+    $('#sampleTrackToggle').on('change', function () {
         if (this.checked)
-            playTrack(sampleTrackSource, trackGain, bufferLoader, numKeys);
+            playTrack(sampleTrackSource, trackGain, bufferLoader, NUMBER_OF_KEYS);
         else
-            stopTrack(sampleTrackSource);
+            stopSound(sampleTrackSource);
     });
 
-    $("#customTrackToggle").on("change", function() {
+    $('#customTrackToggle').on('change', function() {
         if (this.checked)
-            playTrack(customTrackSource, trackGain, bufferLoader, numKeys + 1);
+            playTrack(customTrackSource, trackGain, bufferLoader, NUMBER_OF_KEYS + 1);
         else
-            stopTrack(customTrackSource);
+            stopSound(customTrackSource);
     });
 
-    $("#customTrackBtn").on("click", function() {
-        $("#customTrackFile").trigger("click");
+    $('#customTrackBtn').on('click', function() {
+        $('#customTrackFile').trigger('click');
     });
 
-    $("#customTrackFile").on("change", function() {
+    $('#customTrackFile').on('change', function() {
         // reset custom track
-        stopTrack(customTrackSource);
+        stopSound(customTrackSource);
         customTrackSource = audioContext.createBufferSource();
         customTrackSource.loop = true;
         // load new file
         customTrackFile = URL.createObjectURL(this.files[0]);
-        bufferLoader.urlList[numKeys + 1] = customTrackFile;
-        bufferLoader.loadBuffer(file, numKeys + 1);
+        bufferLoader.urlList[NUMBER_OF_KEYS + 1] = customTrackFile;
+        bufferLoader.loadBuffer(customTrackFile, NUMBER_OF_KEYS + 1);
     });
 
-    $("#pianoVolume").on("change", function () {
+    $('#pianoVolume').on('change', function () {
         var fraction = parseInt(this.value) / parseInt(this.max);
         pianoGain.gain.value = fraction * fraction;
     });
 
-    $("#trackVolume").on("change", function () {
+    $('#trackVolume').on('change', function () {
         var fraction = parseInt(this.value) / parseInt(this.max);
         trackGain.gain.value = fraction * fraction;
     });
@@ -168,7 +166,7 @@ function drawWhiteKeys(canvasContext, whiteKeyWidth) {
  * @param {number} blackKeyWidth - The width of an individual black key.
  */
 function drawBlackKeys(canvasContext, whiteKeyWidth, blackKeyWidth) {
-    canvasContext.fillStyle = "#000000";
+    canvasContext.fillStyle = '#000000';
     for (var i = 0; i < 13; i++) {
         if (i === 2 || i === 6 || i === 9)
             continue;
@@ -205,9 +203,9 @@ function playTrack(source, gain, bufferLoader, index) {
 }
 
 /**
- * Stop the track from playing.
+ * Stop a sound that is playing.
  * @param {AudioBufferSourceNode} source - The AudioNode responsible for playing the track.
  */
-function stopTrack(source) {
+function stopSound(source) {
     source.disconnect(0);
 }
