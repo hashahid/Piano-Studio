@@ -1,7 +1,6 @@
 // TODO: Use real piano sounds and add one or two more octaves
 // TODO: keyboard support, can take inspiration from virtualpiano.net
 // TODO: Make Pianotar pretty with Material Design and by cleaning up UI
-// TODO: Add visualization canvas below piano canvas
 // TODO: Allow users to record what they play and maybe save to file
 
 /**
@@ -9,9 +8,11 @@
  */
 function init() {
     // Drawing variables
-    var canvas = document.querySelector('canvas');
-    var canvasContext = canvas.getContext('2d');
-    var whiteKeyWidth = canvas.width / 14, blackKeyWidth = 2 * (whiteKeyWidth / 3);
+    var pianoCanvas = document.getElementById('pianoCanvas');
+    var visualizationCanvas = document.getElementById('visualizationCanvas');
+    var pianoCanvasContext = pianoCanvas.getContext('2d');
+    var visualizationCanvasContext = visualizationCanvas.getContext('2d');
+    var whiteKeyWidth = pianoCanvas.width / 14, blackKeyWidth = 2 * (whiteKeyWidth / 3);
 
     // Setup variables
     const NUMBER_OF_KEYS = 24;
@@ -22,6 +23,7 @@ function init() {
     // Web audio variables
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     var audioContext = new AudioContext();
+    var analyser = audioContext.createAnalyser();
     var pianoGain = audioContext.createGain(), trackGain = audioContext.createGain();
     var keySources = [],
         sampleTrackSource = audioContext.createBufferSource(),
@@ -37,7 +39,10 @@ function init() {
         ]
     );
 
-    drawPiano(canvasContext, canvas.width, canvas.height, whiteKeyWidth, blackKeyWidth);
+    drawPiano(pianoCanvasContext, pianoCanvas.width, pianoCanvas.height, whiteKeyWidth, blackKeyWidth);
+    window.requestAnimationFrame(function() {
+        drawVisualizer(visualizationCanvasContext, visualizationCanvas.width, visualizationCanvas.height, analyser);
+    });
 
     for (var i = 0, keyIndex = 0; i < NUMBER_OF_KEYS; i++) {
         var noteName = notes[i % notes.length];
@@ -53,44 +58,45 @@ function init() {
         }
     }
 
-    pianoGain.connect(audioContext.destination);
-    trackGain.connect(audioContext.destination);
+    analyser.connect(audioContext.destination);
+    pianoGain.connect(analyser);
+    trackGain.connect(analyser);
     sampleTrackSource.loop = true;
     bufferLoader.load();
 
     // Register event listeners
-    canvas.addEventListener('mousedown', function (event) {
-        var rect = canvas.getBoundingClientRect();
+    pianoCanvas.addEventListener('mousedown', function (event) {
+        var rect = this.getBoundingClientRect();
         var x = event.clientX - rect.left;
         var y = event.clientY - rect.top;
         var key;
 
-        canvasContext.fillStyle = '#777777';
+        pianoCanvasContext.fillStyle = '#777777';
 
         for (i = 0; key = blackKeys[i++];) {
-            canvasContext.beginPath();
-            canvasContext.rect(key[0], 0, blackKeyWidth, 200);
-            if (canvasContext.isPointInPath(x, y)) {
-                canvasContext.fill();
+            pianoCanvasContext.beginPath();
+            pianoCanvasContext.rect(key[0], 0, blackKeyWidth, 200);
+            if (pianoCanvasContext.isPointInPath(x, y)) {
+                pianoCanvasContext.fill();
                 playKey(keySources, key[1], audioContext, pianoGain, bufferLoader);
                 return;
             }
         }
 
         for (i = 0; key = whiteKeys[i++];) {
-            canvasContext.beginPath();
-            canvasContext.rect(key[0], 0, whiteKeyWidth, 300);
-            if (canvasContext.isPointInPath(x, y)) {
-                canvasContext.fill();
-                drawBlackKeys(canvasContext, whiteKeyWidth, blackKeyWidth);
+            pianoCanvasContext.beginPath();
+            pianoCanvasContext.rect(key[0], 0, whiteKeyWidth, 300);
+            if (pianoCanvasContext.isPointInPath(x, y)) {
+                pianoCanvasContext.fill();
+                drawBlackKeys(pianoCanvasContext, whiteKeyWidth, blackKeyWidth);
                 playKey(keySources, key[1], audioContext, pianoGain, bufferLoader);
                 return;
             }
         }
     });
 
-    canvas.addEventListener('mouseup', function () {
-        drawPiano(canvasContext, this.width, this.height, whiteKeyWidth, blackKeyWidth);
+    pianoCanvas.addEventListener('mouseup', function () {
+        drawPiano(pianoCanvasContext, this.width, this.height, whiteKeyWidth, blackKeyWidth);
     });
 
     $('#sampleTrackToggle').on('change', function () {
@@ -135,43 +141,71 @@ function init() {
 
 /**
  * Clear the canvas, draw the white keys of the piano, and then the black keys on top.
- * @param {CanvasRenderingContext2D} canvasContext - The canvas' 2D rendering context.
+ * @param {CanvasRenderingContext2D} pianoCanvasContext - The piano canvas's 2D rendering context.
  * @param {number} canvasWidth - The canvas's width.
- * @param {number} canvasHeight - The canvas' height.
+ * @param {number} canvasHeight - The canvas's height.
  * @param {number} whiteKeyWidth - The width of an individual white key.
  * @param {number} blackKeyWidth - The width of an individual black key.
  */
-function drawPiano(canvasContext, canvasWidth, canvasHeight, whiteKeyWidth, blackKeyWidth) {
-    canvasContext.clearRect(0, 0, canvasWidth, canvasHeight);
-    drawWhiteKeys(canvasContext, whiteKeyWidth);
-    drawBlackKeys(canvasContext, whiteKeyWidth, blackKeyWidth);
+function drawPiano(pianoCanvasContext, canvasWidth, canvasHeight, whiteKeyWidth, blackKeyWidth) {
+    pianoCanvasContext.clearRect(0, 0, canvasWidth, canvasHeight);
+    drawWhiteKeys(pianoCanvasContext, whiteKeyWidth);
+    drawBlackKeys(pianoCanvasContext, whiteKeyWidth, blackKeyWidth);
 }
 
 /**
  * Draw the white keys of the piano.
- * @param {CanvasRenderingContext2D} canvasContext - The canvas' 2D rendering context.
+ * @param {CanvasRenderingContext2D} pianoCanvasContext - The piano canvas's 2D rendering context.
  * @param {number} whiteKeyWidth - The width of an individual white key.
  */
-function drawWhiteKeys(canvasContext, whiteKeyWidth) {
+function drawWhiteKeys(pianoCanvasContext, whiteKeyWidth) {
     for (var i = 0; i < 14; i++) {
-        canvasContext.rect(i * whiteKeyWidth, 0, whiteKeyWidth, 300);
-        canvasContext.stroke();
+        pianoCanvasContext.rect(i * whiteKeyWidth, 0, whiteKeyWidth, 300);
+        pianoCanvasContext.stroke();
     }
 }
 
 /**
  * Draw the black keys of the piano.
- * @param {CanvasRenderingContext2D} canvasContext - The canvas' 2D rendering context.
+ * @param {CanvasRenderingContext2D} pianoCanvasContext - The piano canvas's 2D rendering context.
  * @param {number} whiteKeyWidth - The width of an individual white key.
  * @param {number} blackKeyWidth - The width of an individual black key.
  */
-function drawBlackKeys(canvasContext, whiteKeyWidth, blackKeyWidth) {
-    canvasContext.fillStyle = '#000000';
+function drawBlackKeys(pianoCanvasContext, whiteKeyWidth, blackKeyWidth) {
+    pianoCanvasContext.fillStyle = '#000000';
     for (var i = 0; i < 13; i++) {
         if (i === 2 || i === 6 || i === 9)
             continue;
-        canvasContext.fillRect((i * whiteKeyWidth) + blackKeyWidth, 0, blackKeyWidth, 200);
+        pianoCanvasContext.fillRect((i * whiteKeyWidth) + blackKeyWidth, 0, blackKeyWidth, 200);
     }
+}
+
+/**
+ * Draw onto the visualization canvas below based on the frequency of the currently playing sound.
+ * Credit for this visualization goes to Boris Smus. See his implementation at
+ * {@link http://chimera.labs.oreilly.com/books/1234000001552/ch05.html|this link}.
+ * @param {CanvasRenderingContext2D} canvasContext - The visualization canvas's 2D rendering context.
+ * @param {number} canvasWidth - The canvas's width.
+ * @param {number} canvasHeight - The canvas's height.
+ * @param {AnalyserNode} analyser - The AudioNode responsible for providing real-time frequency analysis information.
+ */
+function drawVisualizer(canvasContext, canvasWidth, canvasHeight, analyser) {
+    canvasContext.clearRect(0, 0, canvasWidth, canvasHeight);
+    var freqDomain = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(freqDomain);
+    for (var i = 0; i < analyser.frequencyBinCount; i++) {
+        var value = freqDomain[i];
+        var percent = value / 256;
+        var height = canvasHeight * percent;
+        var offset = canvasHeight - height - 1;
+        var barWidth = canvasWidth/analyser.frequencyBinCount;
+        var hue = i / analyser.frequencyBinCount * 360;
+        canvasContext.fillStyle = 'hsl(' + hue + ', 100%, 50%)';
+        canvasContext.fillRect(i * barWidth, offset, barWidth, height);
+    }
+    window.requestAnimationFrame(function() {
+        drawVisualizer(canvasContext, canvasWidth, canvasHeight, analyser);
+    });
 }
 
 /**

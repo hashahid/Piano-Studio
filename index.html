@@ -33,13 +33,13 @@
         </td>
     </tr>
 </table>
-<div class="controlRow">
+<div class="spacer">
     <button id="customTrackBtn" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
         Upload Track
     </button>
     <input id="customTrackFile" type="file" name="customTrack" accept="audio/*" style="display: none;">
 </div>
-<table class="controlRow">
+<table class="spacer">
     <tr>
         <td>
             <label>Piano Volume:&nbsp;
@@ -53,6 +53,9 @@
         </td>
     </tr>
 </table>
-<canvas width="1280" height="300"></canvas>
+<canvas id="pianoCanvas" width="1280" height="300"></canvas>
+<div class="spacer">
+    <canvas id="visualizationCanvas" width="1280" height="300"></canvas>
+</div>
 </body>
 </html>
