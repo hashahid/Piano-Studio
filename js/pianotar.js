@@ -191,6 +191,7 @@ function drawBlackKeys(pianoCanvasContext, whiteKeyWidth, blackKeyWidth) {
  */
 function drawVisualizer(canvasContext, canvasWidth, canvasHeight, analyser) {
     canvasContext.clearRect(0, 0, canvasWidth, canvasHeight);
+
     var freqDomain = new Uint8Array(analyser.frequencyBinCount);
     analyser.getByteFrequencyData(freqDomain);
     for (var i = 0; i < analyser.frequencyBinCount; i++) {

@@ -1,3 +1,14 @@
+.h-button {
+    height: 100%;
+    text-transform: inherit;
+}
+
+.h-link-text {
+    color: white;
+    display: block;
+    text-decoration: none;
+}
+
 .spacer {
     margin-top: 10px;
     margin-bottom: 10px;
@@ -7,10 +18,5 @@ canvas {
     border: 1px solid black;
     display: block;
     margin: auto;
-    padding: 0;
-}
-
-h1, h3 {
-    margin: 0;
     padding: 0;
 }
