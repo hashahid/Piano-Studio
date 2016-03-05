@@ -1,7 +1,7 @@
-// TODO: Use real piano sounds and add one or two more octaves
-// TODO: keyboard support, can take inspiration from virtualpiano.net
-// TODO: Make Pianotar pretty with Material Design and by cleaning up UI
-// TODO: Allow users to record what they play and maybe save to file
+// TODO: Make Piano Studio pretty with Material Design and by cleaning up UI
+// TODO: Allow users to record what they play and save to a .wav file
+// TODO: Implement Help section
+// TODO: Link to my site in footer when it's done and online
 
 /**
  * Initialize variables, draw piano, connect audio nodes, load buffers, and register event listeners.
@@ -12,10 +12,10 @@ function init() {
     var visualizationCanvas = document.getElementById('visualizationCanvas');
     var pianoCanvasContext = pianoCanvas.getContext('2d');
     var visualizationCanvasContext = visualizationCanvas.getContext('2d');
-    var whiteKeyWidth = pianoCanvas.width / 14, blackKeyWidth = 2 * (whiteKeyWidth / 3);
+    var whiteKeyWidth = pianoCanvas.width / 28, blackKeyWidth = 2 * (whiteKeyWidth / 3);
 
     // Setup variables
-    const NUMBER_OF_KEYS = 24;
+    const NUMBER_OF_KEYS = 48;
     var notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     var whiteKeys = [], blackKeys = [];
     var customTrackFile = '';
@@ -23,7 +23,7 @@ function init() {
     // Web audio variables
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     var audioContext = new AudioContext();
-    var analyser = audioContext.createAnalyser();
+    var analyzer = audioContext.createAnalyser();
     var pianoGain = audioContext.createGain(), trackGain = audioContext.createGain();
     var keySources = [],
         sampleTrackSource = audioContext.createBufferSource(),
@@ -31,17 +31,25 @@ function init() {
     var bufferLoader = new BufferLoader(
         audioContext,
         [
-            './sounds/1.mp3', './sounds/2.mp3', './sounds/3.mp3', './sounds/4.mp3', './sounds/5.mp3',
-            './sounds/6.mp3', './sounds/7.mp3', './sounds/8.mp3', './sounds/9.mp3', './sounds/10.mp3',
-            './sounds/11.mp3', './sounds/12.mp3', './sounds/13.mp3', './sounds/14.mp3', './sounds/15.mp3',
-            './sounds/16.mp3', './sounds/17.mp3', './sounds/18.mp3', './sounds/19.mp3', './sounds/20.mp3',
-            './sounds/21.mp3', './sounds/22.mp3', './sounds/23.mp3', './sounds/24.mp3', './sounds/sampletrack.wav'
+            './sounds/C2.wav', './sounds/C-sharp2.wav', './sounds/D2.wav', './sounds/D-sharp2.wav',
+            './sounds/E2.wav', './sounds/F2.wav', './sounds/F-sharp2.wav', './sounds/G2.wav',
+            './sounds/G-sharp2.wav', './sounds/A2.wav', './sounds/A-sharp2.wav', './sounds/B2.wav',
+            './sounds/C3.wav', './sounds/C-sharp3.wav', './sounds/D3.wav', './sounds/D-sharp3.wav',
+            './sounds/E3.wav', './sounds/F3.wav', './sounds/F-sharp3.wav', './sounds/G3.wav',
+            './sounds/G-sharp3.wav', './sounds/A3.wav', './sounds/A-sharp3.wav', './sounds/B3.wav',
+            './sounds/C4.wav', './sounds/C-sharp4.wav', './sounds/D4.wav', './sounds/D-sharp4.wav',
+            './sounds/E4.wav', './sounds/F4.wav', './sounds/F-sharp4.wav', './sounds/G4.wav',
+            './sounds/G-sharp4.wav', './sounds/A4.wav', './sounds/A-sharp4.wav', './sounds/B4.wav',
+            './sounds/C5.wav', './sounds/C-sharp5.wav', './sounds/D5.wav', './sounds/D-sharp5.wav',
+            './sounds/E5.wav', './sounds/F5.wav', './sounds/F-sharp5.wav', './sounds/G5.wav',
+            './sounds/G-sharp5.wav', './sounds/A5.wav', './sounds/A-sharp5.wav', './sounds/B5.wav',
+            './sounds/sampletrack.wav'
         ]
     );
 
     drawPiano(pianoCanvasContext, pianoCanvas.width, pianoCanvas.height, whiteKeyWidth, blackKeyWidth);
-    window.requestAnimationFrame(function() {
-        drawVisualizer(visualizationCanvasContext, visualizationCanvas.width, visualizationCanvas.height, analyser);
+    window.requestAnimationFrame(function () {
+        drawVisualizer(visualizationCanvasContext, visualizationCanvas.width, visualizationCanvas.height, analyzer);
     });
 
     for (var i = 0, keyIndex = 0; i < NUMBER_OF_KEYS; i++) {
@@ -58,45 +66,236 @@ function init() {
         }
     }
 
-    analyser.connect(audioContext.destination);
-    pianoGain.connect(analyser);
-    trackGain.connect(analyser);
+    analyzer.connect(audioContext.destination);
+    pianoGain.connect(analyzer);
+    trackGain.connect(analyzer);
     sampleTrackSource.loop = true;
     bufferLoader.load();
 
     // Register event listeners
-    pianoCanvas.addEventListener('mousedown', function (event) {
-        var rect = this.getBoundingClientRect();
-        var x = event.clientX - rect.left;
-        var y = event.clientY - rect.top;
-        var key;
+    $(document).on({
+        keydown: function (event) {
+            var key, shift = event.shiftKey;
+            pianoCanvasContext.fillStyle = '#777777';
 
-        pianoCanvasContext.fillStyle = '#777777';
-
-        for (i = 0; key = blackKeys[i++];) {
-            pianoCanvasContext.beginPath();
-            pianoCanvasContext.rect(key[0], 0, blackKeyWidth, 200);
-            if (pianoCanvasContext.isPointInPath(x, y)) {
-                pianoCanvasContext.fill();
-                playKey(keySources, key[1], audioContext, pianoGain, bufferLoader);
-                return;
+            switch (event.keyCode) {
+                // Number keys row
+                case 49:
+                    if (shift)
+                        key = blackKeys[0];
+                    else
+                        key = whiteKeys[0];
+                    break;
+                case 50:
+                    if (shift)
+                        key = blackKeys[1];
+                    else
+                        key = whiteKeys[1];
+                    break;
+                case 51:
+                    if (shift)
+                        return;
+                    key = whiteKeys[2];
+                    break;
+                case 52:
+                    if (shift)
+                        key = blackKeys[2];
+                    else
+                        key = whiteKeys[3];
+                    break;
+                case 53:
+                    if (shift)
+                        key = blackKeys[3];
+                    else
+                        key = whiteKeys[4];
+                    break;
+                case 54:
+                    if (shift)
+                        key = blackKeys[4];
+                    else
+                        key = whiteKeys[5];
+                    break;
+                case 55:
+                    if (shift)
+                        return;
+                    key = whiteKeys[6];
+                    break;
+                case 56:
+                    if (shift)
+                        key = blackKeys[5];
+                    else
+                        key = whiteKeys[7];
+                    break;
+                case 57:
+                    if (shift)
+                        key = blackKeys[6];
+                    else
+                        key = whiteKeys[8];
+                    break;
+                case 48:
+                    if (shift)
+                        return;
+                    key = whiteKeys[9];
+                    break;
+                // QWERTY row
+                case 81:
+                    if (shift)
+                        key = blackKeys[7];
+                    else
+                        key = whiteKeys[10];
+                    break;
+                case 87:
+                    if (shift)
+                        key = blackKeys[8];
+                    else
+                        key = whiteKeys[11];
+                    break;
+                case 69:
+                    if (shift)
+                        key = blackKeys[9];
+                    else
+                        key = whiteKeys[12];
+                    break;
+                case 82:
+                    if (shift)
+                        return;
+                    key = whiteKeys[13];
+                    break;
+                case 84:
+                    if (shift)
+                        key = blackKeys[10];
+                    else
+                        key = whiteKeys[14];
+                    break;
+                case 89:
+                    if (shift)
+                        key = blackKeys[11];
+                    else
+                        key = whiteKeys[15];
+                    break;
+                case 85:
+                    if (shift)
+                        return;
+                    key = whiteKeys[16];
+                    break;
+                case 73:
+                    if (shift)
+                        key = blackKeys[12];
+                    else
+                        key = whiteKeys[17];
+                    break;
+                case 79:
+                    if (shift)
+                        key = blackKeys[13];
+                    else
+                        key = whiteKeys[18];
+                    break;
+                case 80:
+                    if (shift)
+                        key = blackKeys[14];
+                    else
+                        key = whiteKeys[19];
+                    break;
+                // ASD row
+                case 65:
+                    if (shift)
+                        return;
+                    key = whiteKeys[20];
+                    break;
+                case 83:
+                    if (shift)
+                        key = blackKeys[15];
+                    else
+                        key = whiteKeys[21];
+                    break;
+                case 68:
+                    if (shift)
+                        key = blackKeys[16];
+                    else
+                        key = whiteKeys[22];
+                    break;
+                case 70:
+                    if (shift)
+                        return;
+                    key = whiteKeys[23];
+                    break;
+                case 71:
+                    if (shift)
+                        key = blackKeys[17];
+                    else
+                        key = whiteKeys[24];
+                    break;
+                case 72:
+                    if (shift)
+                        key = blackKeys[18];
+                    else
+                        key = whiteKeys[25];
+                    break;
+                case 74:
+                    if (shift)
+                        key = blackKeys[19];
+                    else
+                        key = whiteKeys[26];
+                    break;
+                case 75:
+                    if (shift)
+                        return;
+                    key = whiteKeys[27];
+                default:
+                    break;
             }
-        }
 
-        for (i = 0; key = whiteKeys[i++];) {
             pianoCanvasContext.beginPath();
-            pianoCanvasContext.rect(key[0], 0, whiteKeyWidth, 300);
-            if (pianoCanvasContext.isPointInPath(x, y)) {
-                pianoCanvasContext.fill();
+            if (shift)
+                pianoCanvasContext.rect(key[0], 0, blackKeyWidth, 200);
+            else
+                pianoCanvasContext.rect(key[0], 0, whiteKeyWidth, 300);
+            pianoCanvasContext.fill();
+            if (!shift)
                 drawBlackKeys(pianoCanvasContext, whiteKeyWidth, blackKeyWidth);
-                playKey(keySources, key[1], audioContext, pianoGain, bufferLoader);
-                return;
-            }
+            playKey(keySources, key[1], audioContext, pianoGain, bufferLoader);
+        }, keyup: function () {
+            drawPiano(pianoCanvasContext, pianoCanvas.width, pianoCanvas.height, whiteKeyWidth, blackKeyWidth);
+        }, dblclick: function () {
+            if (window.getSelection)
+                window.getSelection().removeAllRanges();
+            else if (this.selection)
+                this.selection.empty();
         }
     });
 
-    pianoCanvas.addEventListener('mouseup', function () {
-        drawPiano(pianoCanvasContext, this.width, this.height, whiteKeyWidth, blackKeyWidth);
+    $('#pianoCanvas').on({
+        mousedown: function (event) {
+            var rect = this.getBoundingClientRect();
+            var x = event.clientX - rect.left;
+            var y = event.clientY - rect.top;
+            var key;
+
+            pianoCanvasContext.fillStyle = '#777777';
+
+            for (i = 0; key = blackKeys[i++];) {
+                pianoCanvasContext.beginPath();
+                pianoCanvasContext.rect(key[0], 0, blackKeyWidth, 200);
+                if (pianoCanvasContext.isPointInPath(x, y)) {
+                    pianoCanvasContext.fill();
+                    playKey(keySources, key[1], audioContext, pianoGain, bufferLoader);
+                    return;
+                }
+            }
+
+            for (i = 0; key = whiteKeys[i++];) {
+                pianoCanvasContext.beginPath();
+                pianoCanvasContext.rect(key[0], 0, whiteKeyWidth, 300);
+                if (pianoCanvasContext.isPointInPath(x, y)) {
+                    pianoCanvasContext.fill();
+                    drawBlackKeys(pianoCanvasContext, whiteKeyWidth, blackKeyWidth);
+                    playKey(keySources, key[1], audioContext, pianoGain, bufferLoader);
+                    return;
+                }
+            }
+        }, mouseup: function () {
+            drawPiano(pianoCanvasContext, this.width, this.height, whiteKeyWidth, blackKeyWidth);
+        }
     });
 
     $('#sampleTrackToggle').on('change', function () {
@@ -106,18 +305,18 @@ function init() {
             stopSound(sampleTrackSource);
     });
 
-    $('#customTrackToggle').on('change', function() {
+    $('#customTrackToggle').on('change', function () {
         if (this.checked)
             playTrack(customTrackSource, trackGain, bufferLoader, NUMBER_OF_KEYS + 1);
         else
             stopSound(customTrackSource);
     });
 
-    $('#customTrackBtn').on('click', function() {
+    $('#customTrackBtn').on('click', function () {
         $('#customTrackFile').trigger('click');
     });
 
-    $('#customTrackFile').on('change', function() {
+    $('#customTrackFile').on('change', function () {
         // reset custom track
         stopSound(customTrackSource);
         customTrackSource = audioContext.createBufferSource();
@@ -141,16 +340,16 @@ function init() {
 
 /**
  * Clear the canvas, draw the white keys of the piano, and then the black keys on top.
- * @param {CanvasRenderingContext2D} pianoCanvasContext - The piano canvas's 2D rendering context.
+ * @param {CanvasRenderingContext2D} canvasContext - The piano canvas's 2D rendering context.
  * @param {number} canvasWidth - The canvas's width.
  * @param {number} canvasHeight - The canvas's height.
  * @param {number} whiteKeyWidth - The width of an individual white key.
  * @param {number} blackKeyWidth - The width of an individual black key.
  */
-function drawPiano(pianoCanvasContext, canvasWidth, canvasHeight, whiteKeyWidth, blackKeyWidth) {
-    pianoCanvasContext.clearRect(0, 0, canvasWidth, canvasHeight);
-    drawWhiteKeys(pianoCanvasContext, whiteKeyWidth);
-    drawBlackKeys(pianoCanvasContext, whiteKeyWidth, blackKeyWidth);
+function drawPiano(canvasContext, canvasWidth, canvasHeight, whiteKeyWidth, blackKeyWidth) {
+    canvasContext.clearRect(0, 0, canvasWidth, canvasHeight);
+    drawWhiteKeys(canvasContext, whiteKeyWidth);
+    drawBlackKeys(canvasContext, whiteKeyWidth, blackKeyWidth);
 }
 
 /**
@@ -159,7 +358,7 @@ function drawPiano(pianoCanvasContext, canvasWidth, canvasHeight, whiteKeyWidth,
  * @param {number} whiteKeyWidth - The width of an individual white key.
  */
 function drawWhiteKeys(pianoCanvasContext, whiteKeyWidth) {
-    for (var i = 0; i < 14; i++) {
+    for (var i = 0; i < 28; i++) {
         pianoCanvasContext.rect(i * whiteKeyWidth, 0, whiteKeyWidth, 300);
         pianoCanvasContext.stroke();
     }
@@ -173,8 +372,8 @@ function drawWhiteKeys(pianoCanvasContext, whiteKeyWidth) {
  */
 function drawBlackKeys(pianoCanvasContext, whiteKeyWidth, blackKeyWidth) {
     pianoCanvasContext.fillStyle = '#000000';
-    for (var i = 0; i < 13; i++) {
-        if (i === 2 || i === 6 || i === 9)
+    for (var i = 0; i < 27; i++) {
+        if (i === 2 || i === 6 || i === 9 || i === 13 || i === 16 || i === 20 || i === 23)
             continue;
         pianoCanvasContext.fillRect((i * whiteKeyWidth) + blackKeyWidth, 0, blackKeyWidth, 200);
     }
@@ -187,25 +386,25 @@ function drawBlackKeys(pianoCanvasContext, whiteKeyWidth, blackKeyWidth) {
  * @param {CanvasRenderingContext2D} canvasContext - The visualization canvas's 2D rendering context.
  * @param {number} canvasWidth - The canvas's width.
  * @param {number} canvasHeight - The canvas's height.
- * @param {AnalyserNode} analyser - The AudioNode responsible for providing real-time frequency analysis information.
+ * @param {AnalyserNode} analyzer - The AudioNode responsible for providing real-time frequency analysis information.
  */
-function drawVisualizer(canvasContext, canvasWidth, canvasHeight, analyser) {
+function drawVisualizer(canvasContext, canvasWidth, canvasHeight, analyzer) {
     canvasContext.clearRect(0, 0, canvasWidth, canvasHeight);
 
-    var freqDomain = new Uint8Array(analyser.frequencyBinCount);
-    analyser.getByteFrequencyData(freqDomain);
-    for (var i = 0; i < analyser.frequencyBinCount; i++) {
+    var freqDomain = new Uint8Array(analyzer.frequencyBinCount);
+    analyzer.getByteFrequencyData(freqDomain);
+    for (var i = 0; i < analyzer.frequencyBinCount; i++) {
         var value = freqDomain[i];
         var percent = value / 256;
         var height = canvasHeight * percent;
         var offset = canvasHeight - height - 1;
-        var barWidth = canvasWidth/analyser.frequencyBinCount;
-        var hue = i / analyser.frequencyBinCount * 360;
+        var barWidth = canvasWidth / analyzer.frequencyBinCount;
+        var hue = i / analyzer.frequencyBinCount * 360;
         canvasContext.fillStyle = 'hsl(' + hue + ', 100%, 50%)';
         canvasContext.fillRect(i * barWidth, offset, barWidth, height);
     }
-    window.requestAnimationFrame(function() {
-        drawVisualizer(canvasContext, canvasWidth, canvasHeight, analyser);
+    window.requestAnimationFrame(function () {
+        drawVisualizer(canvasContext, canvasWidth, canvasHeight, analyzer);
     });
 }
 
