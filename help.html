@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
     <link rel="stylesheet" href="./css/material.min.css">
 
+    <link rel="icon" href="./img/logo.png">
+
     <script src="./js/material.min.js"></script>
 </head>
 <body class="mdl-demo mdl-color--grey-100 mdl-color-text--grey-700 mdl-base">
@@ -16,6 +18,7 @@
     <header class="mdl-layout__header">
         <div class="mdl-layout__header-row">
             <!-- Title -->
+            <img src="./img/logo.png" id="headerLogo">
             <span class="mdl-layout-title">Piano Studio</span>
             <!-- Add spacer, to align navigation to the right -->
             <div class="mdl-layout-spacer"></div>
@@ -31,6 +34,142 @@
         </div>
     </header>
     <main class="mdl-layout__content" style="flex: 1 0 auto;">
+        <table id="helpTable" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+            <thead>
+            <tr>
+                <th class="mdl-data-table__cell--non-numeric">Keyboard Key</th>
+                <th class="mdl-data-table__cell--non-numeric">Piano Note</th>
+                <th class="mdl-data-table__cell--non-numeric">Keyboard Key</th>
+                <th class="mdl-data-table__cell--non-numeric">Piano Note</th>
+                <th class="mdl-data-table__cell--non-numeric">Keyboard Key</th>
+                <th class="mdl-data-table__cell--non-numeric">Piano Note</th>
+                <th class="mdl-data-table__cell--non-numeric">Keyboard Key</th>
+                <th class="mdl-data-table__cell--non-numeric">Piano Note</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="mdl-data-table__cell--non-numeric">1</td>
+                <td class="mdl-data-table__cell--non-numeric">C2</td>
+                <td class="mdl-data-table__cell--non-numeric">8</td>
+                <td class="mdl-data-table__cell--non-numeric">C3</td>
+                <td class="mdl-data-table__cell--non-numeric">T</td>
+                <td class="mdl-data-table__cell--non-numeric">C4</td>
+                <td class="mdl-data-table__cell--non-numeric">S</td>
+                <td class="mdl-data-table__cell--non-numeric">C5</td>
+            </tr>
+            <tr>
+                <td class="mdl-data-table__cell--non-numeric">Shift + 1</td>
+                <td class="mdl-data-table__cell--non-numeric">C#2</td>
+                <td class="mdl-data-table__cell--non-numeric">Shift + 8</td>
+                <td class="mdl-data-table__cell--non-numeric">C#3</td>
+                <td class="mdl-data-table__cell--non-numeric">Shift + T</td>
+                <td class="mdl-data-table__cell--non-numeric">C#4</td>
+                <td class="mdl-data-table__cell--non-numeric">Shift + S</td>
+                <td class="mdl-data-table__cell--non-numeric">C#5</td>
+            </tr>
+            <tr>
+                <td class="mdl-data-table__cell--non-numeric">2</td>
+                <td class="mdl-data-table__cell--non-numeric">D2</td>
+                <td class="mdl-data-table__cell--non-numeric">9</td>
+                <td class="mdl-data-table__cell--non-numeric">D3</td>
+                <td class="mdl-data-table__cell--non-numeric">Y</td>
+                <td class="mdl-data-table__cell--non-numeric">D4</td>
+                <td class="mdl-data-table__cell--non-numeric">D</td>
+                <td class="mdl-data-table__cell--non-numeric">D5</td>
+            </tr>
+            <tr>
+                <td class="mdl-data-table__cell--non-numeric">Shift + 2</td>
+                <td class="mdl-data-table__cell--non-numeric">D#2</td>
+                <td class="mdl-data-table__cell--non-numeric">Shift + 9</td>
+                <td class="mdl-data-table__cell--non-numeric">D#3</td>
+                <td class="mdl-data-table__cell--non-numeric">Shift + Y</td>
+                <td class="mdl-data-table__cell--non-numeric">D#4</td>
+                <td class="mdl-data-table__cell--non-numeric">Shift + D</td>
+                <td class="mdl-data-table__cell--non-numeric">D#5</td>
+            </tr>
+            <tr>
+                <td class="mdl-data-table__cell--non-numeric">3</td>
+                <td class="mdl-data-table__cell--non-numeric">E2</td>
+                <td class="mdl-data-table__cell--non-numeric">0</td>
+                <td class="mdl-data-table__cell--non-numeric">E3</td>
+                <td class="mdl-data-table__cell--non-numeric">U</td>
+                <td class="mdl-data-table__cell--non-numeric">E4</td>
+                <td class="mdl-data-table__cell--non-numeric">F</td>
+                <td class="mdl-data-table__cell--non-numeric">E5</td>
+            </tr>
+            <tr>
+                <td class="mdl-data-table__cell--non-numeric">4</td>
+                <td class="mdl-data-table__cell--non-numeric">F2</td>
+                <td class="mdl-data-table__cell--non-numeric">Q</td>
+                <td class="mdl-data-table__cell--non-numeric">F3</td>
+                <td class="mdl-data-table__cell--non-numeric">I</td>
+                <td class="mdl-data-table__cell--non-numeric">F4</td>
+                <td class="mdl-data-table__cell--non-numeric">G</td>
+                <td class="mdl-data-table__cell--non-numeric">F5</td>
+            </tr>
+            <tr>
+                <td class="mdl-data-table__cell--non-numeric">Shift + 4</td>
+                <td class="mdl-data-table__cell--non-numeric">F#2</td>
+                <td class="mdl-data-table__cell--non-numeric">Shift + Q</td>
+                <td class="mdl-data-table__cell--non-numeric">F#3</td>
+                <td class="mdl-data-table__cell--non-numeric">Shift + I</td>
+                <td class="mdl-data-table__cell--non-numeric">F#4</td>
+                <td class="mdl-data-table__cell--non-numeric">Shift + G</td>
+                <td class="mdl-data-table__cell--non-numeric">F#5</td>
+            </tr>
+            <tr>
+                <td class="mdl-data-table__cell--non-numeric">5</td>
+                <td class="mdl-data-table__cell--non-numeric">G2</td>
+                <td class="mdl-data-table__cell--non-numeric">W</td>
+                <td class="mdl-data-table__cell--non-numeric">G3</td>
+                <td class="mdl-data-table__cell--non-numeric">O</td>
+                <td class="mdl-data-table__cell--non-numeric">G4</td>
+                <td class="mdl-data-table__cell--non-numeric">H</td>
+                <td class="mdl-data-table__cell--non-numeric">G5</td>
+            </tr>
+            <tr>
+                <td class="mdl-data-table__cell--non-numeric">Shift + 5</td>
+                <td class="mdl-data-table__cell--non-numeric">G#2</td>
+                <td class="mdl-data-table__cell--non-numeric">Shift + W</td>
+                <td class="mdl-data-table__cell--non-numeric">G#3</td>
+                <td class="mdl-data-table__cell--non-numeric">Shift + O</td>
+                <td class="mdl-data-table__cell--non-numeric">G#4</td>
+                <td class="mdl-data-table__cell--non-numeric">Shift + H</td>
+                <td class="mdl-data-table__cell--non-numeric">G#5</td>
+            </tr>
+            <tr>
+                <td class="mdl-data-table__cell--non-numeric">6</td>
+                <td class="mdl-data-table__cell--non-numeric">A2</td>
+                <td class="mdl-data-table__cell--non-numeric">E</td>
+                <td class="mdl-data-table__cell--non-numeric">A3</td>
+                <td class="mdl-data-table__cell--non-numeric">P</td>
+                <td class="mdl-data-table__cell--non-numeric">A4</td>
+                <td class="mdl-data-table__cell--non-numeric">J</td>
+                <td class="mdl-data-table__cell--non-numeric">A5</td>
+            </tr>
+            <tr>
+                <td class="mdl-data-table__cell--non-numeric">Shift + 6</td>
+                <td class="mdl-data-table__cell--non-numeric">A#2</td>
+                <td class="mdl-data-table__cell--non-numeric">Shift + E</td>
+                <td class="mdl-data-table__cell--non-numeric">A#3</td>
+                <td class="mdl-data-table__cell--non-numeric">Shift + P</td>
+                <td class="mdl-data-table__cell--non-numeric">A#4</td>
+                <td class="mdl-data-table__cell--non-numeric">Shift + J</td>
+                <td class="mdl-data-table__cell--non-numeric">A#5</td>
+            </tr>
+            <tr>
+                <td class="mdl-data-table__cell--non-numeric">7</td>
+                <td class="mdl-data-table__cell--non-numeric">B2</td>
+                <td class="mdl-data-table__cell--non-numeric">R</td>
+                <td class="mdl-data-table__cell--non-numeric">B3</td>
+                <td class="mdl-data-table__cell--non-numeric">A</td>
+                <td class="mdl-data-table__cell--non-numeric">B4</td>
+                <td class="mdl-data-table__cell--non-numeric">K</td>
+                <td class="mdl-data-table__cell--non-numeric">B5</td>
+            </tr>
+            </tbody>
+        </table>
     </main>
     <footer class="mdl-mini-footer">
         <table class="mdl-mini-footer__left-section">

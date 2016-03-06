@@ -1,5 +1,3 @@
-// TODO: Implement Help section
-
 /**
  * Initialize variables, draw piano, connect audio nodes, load buffers, and register event listeners.
  */
@@ -9,7 +7,8 @@ function init() {
     var visualizationCanvas = document.getElementById('visualizationCanvas');
     var pianoCanvasContext = pianoCanvas.getContext('2d');
     var visualizationCanvasContext = visualizationCanvas.getContext('2d');
-    var whiteKeyWidth = pianoCanvas.width / 28, blackKeyWidth = 2 * (whiteKeyWidth / 3);
+    var whiteKeyWidth = pianoCanvas.width / 28, blackKeyWidth = 2 * whiteKeyWidth / 3;
+    var whiteKeyHeight = pianoCanvas.height, blackKeyHeight = 2 * whiteKeyHeight / 3;
 
     // Setup variables
     const NUMBER_OF_KEYS = 48;
@@ -244,9 +243,9 @@ function init() {
 
             pianoCanvasContext.beginPath();
             if (shift)
-                pianoCanvasContext.rect(key[0], 0, blackKeyWidth, 200);
+                pianoCanvasContext.rect(key[0], 0, blackKeyWidth, blackKeyHeight);
             else
-                pianoCanvasContext.rect(key[0], 0, whiteKeyWidth, 300);
+                pianoCanvasContext.rect(key[0], 0, whiteKeyWidth, whiteKeyHeight);
             pianoCanvasContext.fill();
             if (!shift)
                 drawBlackKeys(pianoCanvasContext, whiteKeyWidth, blackKeyWidth);
@@ -272,7 +271,7 @@ function init() {
 
             for (i = 0; key = blackKeys[i++];) {
                 pianoCanvasContext.beginPath();
-                pianoCanvasContext.rect(key[0], 0, blackKeyWidth, 200);
+                pianoCanvasContext.rect(key[0], 0, blackKeyWidth, blackKeyHeight);
                 if (pianoCanvasContext.isPointInPath(x, y)) {
                     pianoCanvasContext.fill();
                     playKey(keySources, key[1], audioContext, pianoGain, bufferLoader);
@@ -282,7 +281,7 @@ function init() {
 
             for (i = 0; key = whiteKeys[i++];) {
                 pianoCanvasContext.beginPath();
-                pianoCanvasContext.rect(key[0], 0, whiteKeyWidth, 300);
+                pianoCanvasContext.rect(key[0], 0, whiteKeyWidth, whiteKeyHeight);
                 if (pianoCanvasContext.isPointInPath(x, y)) {
                     pianoCanvasContext.fill();
                     drawBlackKeys(pianoCanvasContext, whiteKeyWidth, blackKeyWidth);
@@ -314,14 +313,16 @@ function init() {
     });
 
     $('#customTrackFile').on('change', function () {
-        // reset custom track
-        stopSound(customTrackSource);
-        customTrackSource = audioContext.createBufferSource();
-        customTrackSource.loop = true;
-        // load new file
-        customTrackFile = URL.createObjectURL(this.files[0]);
-        bufferLoader.urlList[NUMBER_OF_KEYS + 1] = customTrackFile;
-        bufferLoader.loadBuffer(customTrackFile, NUMBER_OF_KEYS + 1);
+        if ($(this).val() !== '') {
+            // reset custom track
+            stopSound(customTrackSource);
+            customTrackSource = audioContext.createBufferSource();
+            customTrackSource.loop = true;
+            // load new file
+            customTrackFile = URL.createObjectURL(this.files[0]);
+            bufferLoader.urlList[NUMBER_OF_KEYS + 1] = customTrackFile;
+            bufferLoader.loadBuffer(customTrackFile, NUMBER_OF_KEYS + 1);
+        }
     });
 
     $('#pianoVolume').on('change', function () {
