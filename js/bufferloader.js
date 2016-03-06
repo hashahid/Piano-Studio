@@ -29,6 +29,8 @@ BufferLoader.prototype.loadBuffer = function (url, index) {
     request.open('GET', url, true);
     request.responseType = 'arraybuffer';
 
+    enableLoadingBar();
+
     var loader = this;
 
     request.onload = function () {
@@ -39,8 +41,8 @@ BufferLoader.prototype.loadBuffer = function (url, index) {
                 return;
             }
             loader.bufferList[index] = buffer;
-            if (++loader.loadCount === loader.urlList.length)
-                loader.onload(loader.bufferList);
+            if (++loader.loadCount >= loader.urlList.length)
+                disableLoadingBar();
         }, function (error) {
             console.error('decodeAudioData error', error);
         });
