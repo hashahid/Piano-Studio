@@ -1,7 +1,4 @@
-// TODO: Make Piano Studio pretty with Material Design and by cleaning up UI
-// TODO: Allow users to record what they play and save to a .wav file
 // TODO: Implement Help section
-// TODO: Link to my site in footer when it's done and online
 
 /**
  * Initialize variables, draw piano, connect audio nodes, load buffers, and register event listeners.
@@ -406,6 +403,25 @@ function drawVisualizer(canvasContext, canvasWidth, canvasHeight, analyzer) {
     window.requestAnimationFrame(function () {
         drawVisualizer(canvasContext, canvasWidth, canvasHeight, analyzer);
     });
+}
+
+/**
+ * Hide page content and display loading bar while audio files are being decoded.
+ */
+function enableLoadingBar() {
+    $('#loaded').hide();
+    $('#loadingBar').show();
+
+    if ($('#customTrackToggle')[0].checked)
+        $('#customTrackToggle').trigger('click');
+}
+
+/**
+ * Hide loading bar and display page content when audio files are successfully decoded.
+ */
+function disableLoadingBar() {
+    $('#loadingBar').hide();
+    $('#loaded').show();
 }
 
 /**

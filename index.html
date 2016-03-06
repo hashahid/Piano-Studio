@@ -14,7 +14,7 @@
     <script src="./js/jquery-2.2.0.min.js"></script>
     <script src="./js/material.min.js"></script>
 </head>
-<body class="mdl-demo mdl-color--grey-100 mdl-color-text--grey-700 mdl-base" onload="init()">
+<body class="mdl-color--grey-100 mdl-color-text--grey-700 mdl-base" onload="init()">
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
     <header class="mdl-layout__header">
         <div class="mdl-layout__header-row">
@@ -33,49 +33,54 @@
             </nav>
         </div>
     </header>
-    <main class="mdl-layout__content">
-        <table class="spacer">
-            <tr>
-                <td style="padding-right: 40px;">
-                    <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="sampleTrackToggle">
-                        <input type="checkbox" id="sampleTrackToggle" class="mdl-switch__input">
-                        <span class="mdl-switch__label">Sample Track</span>
-                    </label>
-                </td>
-                <td>
-                    <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="customTrackToggle">
-                        <input type="checkbox" id="customTrackToggle" class="mdl-switch__input">
-                        <span class="mdl-switch__label">Custom Track</span>
-                    </label>
-                </td>
-            </tr>
-        </table>
-        <div class="spacer">
-            <button id="customTrackBtn"
-                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
-                Upload Track
-            </button>
-            <input id="customTrackFile" type="file" name="customTrack" accept="audio/*" style="display: none;">
+    <main class="mdl-layout__content" style="flex: 1 0 auto;">
+        <div id="loadingBar" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"><br>Loading audio...
         </div>
-        <table class="spacer">
-            <tr>
-                <td>
-                    <label>Piano Volume:&nbsp;
-                        <input id="pianoVolume" class="mdl-slider mdl-js-slider" type="range" min="0" max="100"
-                               value="100">
-                    </label>
-                </td>
-                <td>
-                    <label>Track Volume:&nbsp;
-                        <input id="trackVolume" class="mdl-slider mdl-js-slider" type="range" min="0" max="100"
-                               value="100">
-                    </label>
-                </td>
-            </tr>
-        </table>
-        <canvas id="pianoCanvas" width="1280" height="300"></canvas>
-        <div class="spacer">
-            <canvas id="visualizationCanvas" width="1280" height="300"></canvas>
+        <div id="loaded">
+            <table class="spacer">
+                <tr>
+                    <td style="padding-right: 15px;">
+                        <button id="customTrackBtn"
+                                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
+                            Upload Track
+                        </button>
+                        <input id="customTrackFile" type="file" name="customTrack" accept="audio/*"
+                               style="display: none;">
+                    </td>
+                    <td style="padding-right: 40px;">
+                        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="customTrackToggle">
+                            <input type="checkbox" id="customTrackToggle" class="mdl-switch__input">
+                            <span class="mdl-switch__label">Uploaded Track</span>
+                        </label>
+                    </td>
+                    <td>
+                        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="sampleTrackToggle">
+                            <input type="checkbox" id="sampleTrackToggle" class="mdl-switch__input">
+                            <span class="mdl-switch__label">Sample Track</span>
+                        </label>
+                    </td>
+                </tr>
+            </table>
+            <table class="spacer">
+                <tr>
+                    <td>
+                        <label>Piano Volume:&nbsp;
+                            <input id="pianoVolume" class="mdl-slider mdl-js-slider" type="range" min="0" max="100"
+                                   value="100">
+                        </label>
+                    </td>
+                    <td>
+                        <label>Track Volume:&nbsp;
+                            <input id="trackVolume" class="mdl-slider mdl-js-slider" type="range" min="0" max="100"
+                                   value="100">
+                        </label>
+                    </td>
+                </tr>
+            </table>
+            <canvas id="pianoCanvas" width="1280" height="300" style="margin-top: 10px"></canvas>
+            <div class="spacer">
+                <canvas id="visualizationCanvas" width="1280" height="300"></canvas>
+            </div>
         </div>
     </main>
     <footer class="mdl-mini-footer">
@@ -84,7 +89,7 @@
                 <td>
                     <div class="mdl-logo">Created by</div>
                     <ul class="mdl-mini-footer__link-list">
-                        <li><a href="#">Haseeb Shahid</a></li>
+                        <li><a href="http://hashahid.github.io/">Haseeb Shahid</a></li>
                     </ul>
                 </td>
                 <td>

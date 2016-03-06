@@ -1,3 +1,13 @@
+#loadingBar {
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    top:0;
+}
+
 .h-button {
     height: 100%;
     text-transform: inherit;
@@ -10,8 +20,9 @@
 }
 
 .spacer {
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin: auto;
+    padding-top: 10px;
+    text-align: center;
 }
 
 canvas {
