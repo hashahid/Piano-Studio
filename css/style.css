@@ -1,3 +1,19 @@
+#headerLogo {
+    height: 35px;
+    padding-right: 15px;
+    width: 35px;
+}
+
+#helpTable {
+    left: 50%;
+    margin-left: -439px;
+    margin-top: 20px;
+}
+
+#helpTable td {
+    text-align: center;
+}
+
 #loadingBar {
     bottom: 0;
     left: 0;
@@ -5,7 +21,7 @@
     position: absolute;
     right: 0;
     text-align: center;
-    top:0;
+    top: 0;
 }
 
 .h-button {
