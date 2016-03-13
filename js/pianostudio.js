@@ -27,19 +27,19 @@ function init() {
     var bufferLoader = new BufferLoader(
         audioContext,
         [
-            './sounds/C2.wav', './sounds/C-sharp2.wav', './sounds/D2.wav', './sounds/D-sharp2.wav',
-            './sounds/E2.wav', './sounds/F2.wav', './sounds/F-sharp2.wav', './sounds/G2.wav',
-            './sounds/G-sharp2.wav', './sounds/A2.wav', './sounds/A-sharp2.wav', './sounds/B2.wav',
-            './sounds/C3.wav', './sounds/C-sharp3.wav', './sounds/D3.wav', './sounds/D-sharp3.wav',
-            './sounds/E3.wav', './sounds/F3.wav', './sounds/F-sharp3.wav', './sounds/G3.wav',
-            './sounds/G-sharp3.wav', './sounds/A3.wav', './sounds/A-sharp3.wav', './sounds/B3.wav',
-            './sounds/C4.wav', './sounds/C-sharp4.wav', './sounds/D4.wav', './sounds/D-sharp4.wav',
-            './sounds/E4.wav', './sounds/F4.wav', './sounds/F-sharp4.wav', './sounds/G4.wav',
-            './sounds/G-sharp4.wav', './sounds/A4.wav', './sounds/A-sharp4.wav', './sounds/B4.wav',
-            './sounds/C5.wav', './sounds/C-sharp5.wav', './sounds/D5.wav', './sounds/D-sharp5.wav',
-            './sounds/E5.wav', './sounds/F5.wav', './sounds/F-sharp5.wav', './sounds/G5.wav',
-            './sounds/G-sharp5.wav', './sounds/A5.wav', './sounds/A-sharp5.wav', './sounds/B5.wav',
-            './sounds/sampletrack.wav'
+            './sounds/C2.mp3', './sounds/C-sharp2.mp3', './sounds/D2.mp3', './sounds/D-sharp2.mp3',
+            './sounds/E2.mp3', './sounds/F2.mp3', './sounds/F-sharp2.mp3', './sounds/G2.mp3',
+            './sounds/G-sharp2.mp3', './sounds/A2.mp3', './sounds/A-sharp2.mp3', './sounds/B2.mp3',
+            './sounds/C3.mp3', './sounds/C-sharp3.mp3', './sounds/D3.mp3', './sounds/D-sharp3.mp3',
+            './sounds/E3.mp3', './sounds/F3.mp3', './sounds/F-sharp3.mp3', './sounds/G3.mp3',
+            './sounds/G-sharp3.mp3', './sounds/A3.mp3', './sounds/A-sharp3.mp3', './sounds/B3.mp3',
+            './sounds/C4.mp3', './sounds/C-sharp4.mp3', './sounds/D4.mp3', './sounds/D-sharp4.mp3',
+            './sounds/E4.mp3', './sounds/F4.mp3', './sounds/F-sharp4.mp3', './sounds/G4.mp3',
+            './sounds/G-sharp4.mp3', './sounds/A4.mp3', './sounds/A-sharp4.mp3', './sounds/B4.mp3',
+            './sounds/C5.mp3', './sounds/C-sharp5.mp3', './sounds/D5.mp3', './sounds/D-sharp5.mp3',
+            './sounds/E5.mp3', './sounds/F5.mp3', './sounds/F-sharp5.mp3', './sounds/G5.mp3',
+            './sounds/G-sharp5.mp3', './sounds/A5.mp3', './sounds/A-sharp5.mp3', './sounds/B5.mp3',
+            './sounds/sampletrack.mp3'
         ]
     );
 
